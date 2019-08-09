@@ -1,0 +1,24 @@
+all:
+  children:
+    ci_agents:
+      hosts:
+        169.61.160.207:
+          boot_volume:
+            device: xvda
+            name: ci-farm-server-1-boot
+          instance:
+            created_at: '2019-08-09T17:10:36.149Z'
+            id: ff9bd14d-c0ea-4f99-9d62-0c9b2f566264
+            name: ci-farm-server-1
+            profile: cc1-4x8
+            subnet: couchdb-ci-farm-subnet-2
+            vpc: couchdb-ci-farm
+            zone: us-south-2
+          ips:
+            private: 10.240.64.4
+            public: 169.61.160.207
+          system:
+            arch: amd64
+            num_cpus: 4
+            ram: 8
+

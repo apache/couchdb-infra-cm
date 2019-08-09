@@ -1,0 +1,152 @@
+#!/usr/bin/env python
+
+import ConfigParser as cp
+import json
+import os
+import re
+
+import requests
+import yaml
+
+
+IBM_CLOUD_URL = "https://us-south.iaas.cloud.ibm.com/v1/"
+IAM_URL = "https://iam.cloud.ibm.com/identity/token"
+
+IBM_CLOUD_GENERATION = "1"
+IBM_CLOUD_VERSION = "2019-08-09"
+
+API_KEY = None
+IAM_TOKEN = None
+SESS = requests.session()
+
+CI_AGENT_RE = re.compile("ci-farm-server-\d+")
+
+
+def tostr(obj):
+    ret = {}
+    for k, v in obj.items():
+        if isinstance(k, unicode):
+            k = k.encode("utf-8")
+        if isinstance(v, dict):
+            ret[k] = tostr(v)
+        elif isinstance(v, unicode):
+            ret[k] = v.encode("utf-8")
+        else:
+            ret[k] = v
+    return ret
+
+
+def load_api_key():
+    global API_KEY
+    path = os.path.expanduser("~/.couchdb-infra-cm.cfg")
+    if not os.path.exists(path):
+        print "Missing config file: " + path
+        exit(1)
+    parser = cp.SafeConfigParser()
+    parser.read([path])
+    API_KEY = parser.get("ibmcloud", "api_key")
+
+
+def load_iam_token():
+    global IAM_TOKEN
+    headers = {
+        "Accept": "application/json"
+    }
+    data = {
+        "grant_type": "urn:ibm:params:oauth:grant-type:apikey",
+        "apikey": API_KEY
+    }
+    resp = SESS.post(IAM_URL, headers=headers, data=data)
+    resp.raise_for_status()
+    body = resp.json()
+    IAM_TOKEN = body["token_type"] + " " + body["access_token"]
+    SESS.headers["Authorization"] = IAM_TOKEN
+
+
+def init():
+    load_api_key()
+    load_iam_token()
+
+
+def list_instances():
+    url = IBM_CLOUD_URL + "/instances"
+    params = {
+        "version": IBM_CLOUD_VERSION,
+        "generation": IBM_CLOUD_GENERATION,
+        "limit": 100
+    }
+    while url:
+        resp = SESS.get(url, params=params)
+        body = resp.json()
+        for instance in body["instances"]:
+            interface_url = instance["primary_network_interface"]["href"]
+            resp = SESS.get(interface_url, params=params)
+            instance["primary_network_interface"] = resp.json()
+            yield instance
+        url = body.get("next")
+
+
+def load_ci_agent(ci_agents, instance):
+    if instance["status"] != "running":
+        return
+
+    name = instance["name"]
+    floating_ips = instance["primary_network_interface"]["floating_ips"]
+    if not len(floating_ips):
+        print "Instance {} does not have any floating ips".format(name)
+        exit(2)
+
+    public_ip = floating_ips[0]["address"]
+
+    ci_agents[public_ip] = {
+        "instance": {
+            "id": instance["id"],
+            "name": instance["name"],
+            "created_at": instance["created_at"],
+            "profile": instance["profile"]["name"],
+            "vpc": instance["vpc"]["name"],
+            "zone": instance["zone"]["name"],
+            "subnet": instance["primary_network_interface"]["subnet"]["name"]
+        },
+        "ips": {
+            "public": public_ip,
+            "private": instance["primary_network_interface"]["primary_ipv4_address"]
+        },
+        "boot_volume": {
+            "device": instance["boot_volume_attachment"]["device"]["id"],
+            "name": instance["boot_volume_attachment"]["volume"]["name"]
+        },
+        "system": {
+            "arch": instance["vcpu"]["architecture"],
+            "num_cpus": instance["vcpu"]["count"],
+            "ram": instance["memory"]
+        }
+    }
+
+
+def main():
+    init()
+
+    ci_agents = {}
+
+    for instance in list_instances():
+        if CI_AGENT_RE.match(instance["name"]):
+            load_ci_agent(ci_agents, instance)
+            continue
+
+        print "Unknown instance: " + instance["name"]
+        exit(2)
+
+    inventory = {"all": {
+        "children": {
+            "ci_agents": {
+                "hosts": ci_agents
+            }
+        }
+    }}
+
+    print yaml.dump(tostr(inventory), default_flow_style=False)
+
+
+if __name__ == "__main__":
+    main()
