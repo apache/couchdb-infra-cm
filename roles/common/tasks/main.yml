@@ -1,0 +1,29 @@
+- name: Install basic ubiquitous packages
+  become: yes
+  apt:
+    name: "{{ packages }}"
+    state: latest
+    update_cache: yes
+    cache_valid_time: 3600
+  vars:
+    packages:
+      - apt-transport-https
+      - atop
+      - ca-certificates
+      - curl
+      - git
+      - gnupg2
+      - iftop
+      - iperf3
+      - mtr-tiny
+      - nload
+      - python3
+      - runit
+      - runit-systemd
+      - screen
+      - software-properties-common
+      - strace
+      - tcpdump
+      - tmux
+      - vim
+      - wget

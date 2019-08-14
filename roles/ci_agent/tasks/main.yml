@@ -1,0 +1,55 @@
+- name: Install Docker gpg key for Apt
+  become: yes
+  apt_key:
+    url: https://download.docker.com/linux/debian/gpg
+    state: present
+
+- name: Setup Docker Apt repository
+  become: yes
+  apt_repository:
+    repo: deb https://download.docker.com/linux/debian {{ ansible_distribution_release }} stable
+    filename: docker
+    state: present
+
+- name: Install Docker Packages
+  become: yes
+  apt:
+    name: "{{ packages }}"
+  vars:
+    packages:
+      - containerd.io
+      - docker-ce
+      - docker-ce-cli
+
+- name: Install multi-architecture support for Docker
+  become: yes
+  apt:
+    name: "{{ packages }}"
+    state: latest
+  vars:
+    packages:
+      - binfmt-support
+      - qemu
+      - qemu-user-static
+
+- name: Install Java 8
+  become: yes
+  apt:
+    name: "{{ packages }}"
+    state: latest
+  vars:
+    packages:
+      - openjdk-8-jre-headless
+
+# Copy infra script to delete old docker images
+# Add cron to run docker deleter script
+
+# Add jenkins user with specific uid
+# Write script to download a jar and run it
+# Install script as runit service
+
+# Figure out how to configure the password things required
+# for running the jar bits
+
+# Figure out if our Java agent requires all the jars
+# and tooling I saw in the docs (ant, maven, multiple jvms, etc)

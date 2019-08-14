@@ -1,0 +1,30 @@
+---
+- hosts: all
+  vars:
+    ansible_ssh_user: root
+  tasks:
+  - name: Add user couchdb
+    user:
+      name: couchdb
+      state: present
+      shell: /bin/bash
+
+  - name: Make sure sudo is installed
+    apt:
+      name: sudo
+      state: latest
+
+  - name: Grant sudo access to couchdb user
+    copy:
+      content: 'couchdb ALL=(ALL) NOPASSWD:ALL'
+      dest: /etc/sudoers.d/couchdb
+      mode: 0440
+
+  - name: Allow CouchDB Infra access to couchdb user
+    authorized_key:
+      user: couchdb
+      state: present
+      key: "{{ item }}"
+    with_items:
+      - https://github.com/davisp.keys
+      - https://github.com/wohali.keys

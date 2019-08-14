@@ -1,0 +1,5 @@
+---
+- hosts: ci_agents
+  roles:
+    - common
+    - ci_agent
