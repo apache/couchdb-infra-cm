@@ -2,21 +2,97 @@ all:
   children:
     ci_agents:
       hosts:
-        169.61.160.207:
+        169.48.153.210:
           boot_volume:
-            device: xvda
-            name: ci-farm-server-1-boot
+            device: 0717_5afac964-7ec6-4dad-a84d-b09b4d992949-vgqqr
+            name: couchdb-ci-worker-dal-1-2-boot
           instance:
-            created_at: '2019-08-09T17:10:36.149Z'
-            id: ff9bd14d-c0ea-4f99-9d62-0c9b2f566264
-            name: ci-farm-server-1
-            profile: cc1-4x8
-            subnet: couchdb-ci-farm-subnet-2
-            vpc: couchdb-ci-farm
-            zone: us-south-2
-          ips:
-            private: 10.240.64.4
-            public: 169.61.160.207
+            created_at: '2019-12-11T16:51:02Z'
+            id: 0717_d97c67df-1f04-41f8-9461-9b1d5721e408
+            name: couchdb-ci-worker-dal-1-2
+            profile: cx2-4x8
+            subnet: couchdb-ci-farm-dal-1
+            vpc: couchdb-ci-farm-vpc
+            zone: us-south-1
+          ip_addrs:
+            private: 10.240.0.5
+            public: 169.48.153.210
+          system:
+            arch: amd64
+            num_cpus: 4
+            ram: 8
+        169.48.153.7:
+          boot_volume:
+            device: 0717_72564344-27ce-4e79-91d8-aacfaba35421-vv2gd
+            name: couchdb-ci-worker-dal-1-1-boot
+          instance:
+            created_at: '2019-12-11T16:50:33Z'
+            id: 0717_4d64226a-ffad-4523-b5b3-78769a1d0bbe
+            name: couchdb-ci-worker-dal-1-1
+            profile: cx2-4x8
+            subnet: couchdb-ci-farm-dal-1
+            vpc: couchdb-ci-farm-vpc
+            zone: us-south-1
+          ip_addrs:
+            private: 10.240.0.4
+            public: 169.48.153.7
+          system:
+            arch: amd64
+            num_cpus: 4
+            ram: 8
+        169.48.154.118:
+          boot_volume:
+            device: 0717_4abf905c-b565-4537-a4f3-b9e365d945ed-tbfg5
+            name: couchdb-ci-worker-dal-1-4-boot
+          instance:
+            created_at: '2019-12-11T16:51:39Z'
+            id: 0717_c4b21ff3-96e9-45a5-a77c-a90d6ac723dc
+            name: couchdb-ci-worker-dal-1-4
+            profile: cx2-4x8
+            subnet: couchdb-ci-farm-dal-1
+            vpc: couchdb-ci-farm-vpc
+            zone: us-south-1
+          ip_addrs:
+            private: 10.240.0.7
+            public: 169.48.154.118
+          system:
+            arch: amd64
+            num_cpus: 4
+            ram: 8
+        169.48.154.14:
+          boot_volume:
+            device: 0717_f51ebb9c-5081-47f0-bbf9-07a1b1ba5e73-nwzzg
+            name: couchdb-ci-worker-dal-1-3-boot
+          instance:
+            created_at: '2019-12-11T16:51:21Z'
+            id: 0717_04df61d7-fb30-4251-9f59-7566c93c8a92
+            name: couchdb-ci-worker-dal-1-3
+            profile: cx2-4x8
+            subnet: couchdb-ci-farm-dal-1
+            vpc: couchdb-ci-farm-vpc
+            zone: us-south-1
+          ip_addrs:
+            private: 10.240.0.6
+            public: 169.48.154.14
+          system:
+            arch: amd64
+            num_cpus: 4
+            ram: 8
+        169.48.154.35:
+          boot_volume:
+            device: 0717_1a5c43f9-a22a-4258-9514-13703dfc5fb0-wkn8z
+            name: couchdb-ci-worker-dal-1-5-boot
+          instance:
+            created_at: '2019-12-11T16:51:55Z'
+            id: 0717_e4857481-a79e-4848-a1c5-38e2577f815c
+            name: couchdb-ci-worker-dal-1-5
+            profile: cx2-4x8
+            subnet: couchdb-ci-farm-dal-1
+            vpc: couchdb-ci-farm-vpc
+            zone: us-south-1
+          ip_addrs:
+            private: 10.240.0.8
+            public: 169.48.154.35
           system:
             arch: amd64
             num_cpus: 4

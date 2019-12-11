@@ -1,3 +1,12 @@
+- name: Allow CouchDB Infra access
+  authorized_key:
+    user: root
+    state: present
+    key: "{{ item }}"
+  with_items:
+    - https://github.com/davisp.keys
+    - https://github.com/wohali.keys
+
 - name: Install basic ubiquitous packages
   become: yes
   apt:
@@ -17,12 +26,14 @@
       - iperf3
       - mtr-tiny
       - nload
+      - ntp
       - python3
       - runit
       - runit-systemd
       - screen
       - software-properties-common
       - strace
+      - sudo
       - tcpdump
       - tmux
       - vim

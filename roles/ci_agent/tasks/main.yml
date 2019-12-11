@@ -41,15 +41,46 @@
     packages:
       - openjdk-8-jre-headless
 
-# Copy infra script to delete old docker images
-# Add cron to run docker deleter script
+- name: Add group jenkins
+  become: yes
+  group:
+    name: jenkins
+    gid: 910
 
-# Add jenkins user with specific uid
-# Write script to download a jar and run it
-# Install script as runit service
+- name: Add user jenkins
+  become: yes
+  user:
+    name: jenkins
+    uid: 910
+    groups:
+      - jenkins
+      - docker
+    state: present
+    shell: /bin/bash
 
-# Figure out how to configure the password things required
-# for running the jar bits
+- name: Add Apache Infra ssh key
+  become: yes
+  authorized_key:
+    user: jenkins
+    key: ssh-rsa AAAAB3NzaC1yc2EAAAABIwAAAIEAtxkcKDiPh1OaVzaVdc80daKq2sRy8aAgt8u2uEcLClzMrnv/g19db7XVggfT4+HPCqcbFbO3mtVnUnWWtuSEpDjqriWnEcSj2G1P53zsdKEu9qCGLmEFMgwcq8b5plv78PRdAQn09WCBI1QrNMypjxgCKhNNn45WqV4AD8Jp7/8=
 
-# Figure out if our Java agent requires all the jars
-# and tooling I saw in the docs (ant, maven, multiple jvms, etc)
+- name: Install kill-old-docker.sh
+  become: yes
+  copy:
+    src: kill-old-docker.sh
+    dest: /usr/local/bin/kill-old-docker.sh
+    mode: 0755
+
+- name: Add kill-old-docker.sh cron entry
+  become: yes
+  cron:
+    name: Kill old docker containers
+    hour: '19'
+    job: /usr/local/bin/kill-old-docker.sh
+
+- name: Add docker prune cron entry
+  become: yes
+  cron:
+    name: Docker prune
+    hour: '19'
+    job: /usr/bin/docker system prune -a -f --filter "until=72h"

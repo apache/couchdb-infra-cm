@@ -19,21 +19,28 @@ Create a `~/.couchdb-infra-cm.cfg` file that contains the following options:
     [ibmcloud]
     api_key = <REDACTED>
 
-Then simply run the script which will dump the current inventory to stdout. Redirect the output to whatever filename you so desire.
+The `tools/gen-inventory` script can then be used to generate our `production`
+inventory file:
 
-Provisioning a Node
+    $ ./tools/gen-inventory > production
+
+Setting up CI workers for Jenkins
 ---
 
-First, create a new VM of the desired type using whatever means necessary to have root SSH access along with a public IP address (or at least, some method that can be configured into Ansible though you're on your own at this point).
+Once the a new VM has been added into the `production` inventory whoever
+provisioned the VM will need to execute the first Ansible run so that
+the CouchDB infra group has access (where infra group is defined as
+the list of GitHub users in `roles/common/tasks/main.yml`).
 
-Then run:
+    $ ansible-playbook -i production ci_agents.yml
 
-    ansible-playbook -i W.X.Y.Z, provision.yml
+Once this playbook finishes the new VM should be configured to be usable
+as a Jenkins agent.
 
-*Note:* Make sure to include the trailing comma (,) in the -i argument or you'll get an error about not being able to parse the inventory.
 
-Once this has run and you have updated the `production` inventory file (See the section above on generating inventory files) in this directory you can then run:
+Configuring Jenkins
+---
 
-    ansible-playbook -i production ci_agents.yml
-
-And the node will be configured as a new CI agent.
+Once Ansible has run against a new VM configuring it as an agent in
+Jenkins is fairly straightforward. You can just copy an existing node's
+configuration and update the SSH host IP address.
