@@ -1,18 +1,15 @@
 - name: Install Docker gpg key for Apt
-  become: yes
   apt_key:
     url: https://download.docker.com/linux/debian/gpg
     state: present
 
 - name: Setup Docker Apt repository
-  become: yes
   apt_repository:
     repo: deb https://download.docker.com/linux/debian {{ ansible_distribution_release }} stable
     filename: docker
     state: present
 
 - name: Install Docker Packages
-  become: yes
   apt:
     name: "{{ packages }}"
   vars:
@@ -22,7 +19,6 @@
       - docker-ce-cli
 
 - name: Install multi-architecture support for Docker
-  become: yes
   apt:
     name: "{{ packages }}"
     state: latest
@@ -33,7 +29,6 @@
       - qemu-user-static
 
 - name: Install Java 8
-  become: yes
   apt:
     name: "{{ packages }}"
     state: latest
@@ -42,13 +37,11 @@
       - openjdk-8-jre-headless
 
 - name: Add group jenkins
-  become: yes
   group:
     name: jenkins
     gid: 910
 
 - name: Add user jenkins
-  become: yes
   user:
     name: jenkins
     uid: 910
@@ -58,29 +51,50 @@
     state: present
     shell: /bin/bash
 
-- name: Add Apache Infra ssh key
-  become: yes
-  authorized_key:
-    user: jenkins
-    key: ssh-rsa AAAAB3NzaC1yc2EAAAABIwAAAIEAtxkcKDiPh1OaVzaVdc80daKq2sRy8aAgt8u2uEcLClzMrnv/g19db7XVggfT4+HPCqcbFbO3mtVnUnWWtuSEpDjqriWnEcSj2G1P53zsdKEu9qCGLmEFMgwcq8b5plv78PRdAQn09WCBI1QrNMypjxgCKhNNn45WqV4AD8Jp7/8=
-
 - name: Install kill-old-docker.sh
-  become: yes
   copy:
     src: kill-old-docker.sh
     dest: /usr/local/bin/kill-old-docker.sh
     mode: 0755
 
 - name: Add kill-old-docker.sh cron entry
-  become: yes
   cron:
     name: Kill old docker containers
     hour: '19'
     job: /usr/local/bin/kill-old-docker.sh
 
 - name: Add docker prune cron entry
-  become: yes
   cron:
     name: Docker prune
     hour: '19'
     job: /usr/bin/docker system prune -a -f --filter "until=72h"
+
+- name: Create Jenkins runit service directory
+  file:
+    path: /etc/sv/jenkins
+    state: directory
+
+- name: Create Jenkins runit log directory
+  file:
+    path: /etc/sv/jenkins/log/main
+    state: directory
+
+- name : Create Jenkins runit run script
+  template:
+    src: runit-main.j2
+    dest: /etc/sv/jenkins/run
+    mode: 0755
+
+- name: Create Jenkins runit logs run script
+  copy:
+    src: runit-logs
+    dest: /etc/sv/jenkins/log/run
+    mode: 0755
+
+- name: Enable Jenkins runit service
+  file:
+    src: /etc/sv/jenkins
+    dest: /etc/service/jenkins
+    state: link
+
+

@@ -8,7 +8,6 @@
     - https://github.com/wohali.keys
 
 - name: Install basic ubiquitous packages
-  become: yes
   apt:
     name: "{{ packages }}"
     state: latest

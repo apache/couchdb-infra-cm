@@ -1,100 +1,185 @@
 all:
   children:
-    ci_agents:
+    bastions:
       hosts:
-        169.48.153.210:
+        couchdb-bastion-x86-64-debian-dal-1-1:
           boot_volume:
-            device: 0717_5afac964-7ec6-4dad-a84d-b09b4d992949-vgqqr
-            name: couchdb-ci-worker-dal-1-2-boot
+            device: 0717-24ba0f68-404a-4f68-82c8-0e885fc3e759-nx629
+            name: couchdb-ci-bastion-dal-1-1-boot
           instance:
-            created_at: '2019-12-11T16:51:02Z'
-            id: 0717_d97c67df-1f04-41f8-9461-9b1d5721e408
-            name: couchdb-ci-worker-dal-1-2
-            profile: cx2-4x8
+            created_at: '2020-01-07T18:38:33Z'
+            id: 0717_5ecb1169-95ac-465b-a505-d172093972d1
+            name: couchdb-bastion-x86-64-debian-dal-1-1
+            profile: cx2-2x4
             subnet: couchdb-ci-farm-dal-1
             vpc: couchdb-ci-farm-vpc
             zone: us-south-1
           ip_addrs:
-            private: 10.240.0.5
-            public: 169.48.153.210
+            private: 10.240.0.11
+            public: 169.48.153.153
           system:
             arch: amd64
-            num_cpus: 4
-            ram: 8
-        169.48.153.7:
+            num_cpus: 2
+            ram: 4
+    ci_agents:
+      hosts:
+        couchdb-worker-x86-64-debian-dal-1-01:
           boot_volume:
             device: 0717_72564344-27ce-4e79-91d8-aacfaba35421-vv2gd
             name: couchdb-ci-worker-dal-1-1-boot
           instance:
             created_at: '2019-12-11T16:50:33Z'
             id: 0717_4d64226a-ffad-4523-b5b3-78769a1d0bbe
-            name: couchdb-ci-worker-dal-1-1
+            name: couchdb-worker-x86-64-debian-dal-1-01
             profile: cx2-4x8
             subnet: couchdb-ci-farm-dal-1
             vpc: couchdb-ci-farm-vpc
             zone: us-south-1
           ip_addrs:
+            bastion: 169.48.153.153
             private: 10.240.0.4
-            public: 169.48.153.7
+            public: null
           system:
             arch: amd64
             num_cpus: 4
             ram: 8
-        169.48.154.118:
+        couchdb-worker-x86-64-debian-dal-1-02:
           boot_volume:
-            device: 0717_4abf905c-b565-4537-a4f3-b9e365d945ed-tbfg5
-            name: couchdb-ci-worker-dal-1-4-boot
+            device: 0717_5afac964-7ec6-4dad-a84d-b09b4d992949-vgqqr
+            name: couchdb-ci-worker-dal-1-2-boot
           instance:
-            created_at: '2019-12-11T16:51:39Z'
-            id: 0717_c4b21ff3-96e9-45a5-a77c-a90d6ac723dc
-            name: couchdb-ci-worker-dal-1-4
+            created_at: '2019-12-11T16:51:02Z'
+            id: 0717_d97c67df-1f04-41f8-9461-9b1d5721e408
+            name: couchdb-worker-x86-64-debian-dal-1-02
             profile: cx2-4x8
             subnet: couchdb-ci-farm-dal-1
             vpc: couchdb-ci-farm-vpc
             zone: us-south-1
           ip_addrs:
-            private: 10.240.0.7
-            public: 169.48.154.118
+            bastion: 169.48.153.153
+            private: 10.240.0.5
+            public: null
           system:
             arch: amd64
             num_cpus: 4
             ram: 8
-        169.48.154.14:
+        couchdb-worker-x86-64-debian-dal-1-03:
           boot_volume:
             device: 0717_f51ebb9c-5081-47f0-bbf9-07a1b1ba5e73-nwzzg
             name: couchdb-ci-worker-dal-1-3-boot
           instance:
             created_at: '2019-12-11T16:51:21Z'
             id: 0717_04df61d7-fb30-4251-9f59-7566c93c8a92
-            name: couchdb-ci-worker-dal-1-3
+            name: couchdb-worker-x86-64-debian-dal-1-03
             profile: cx2-4x8
             subnet: couchdb-ci-farm-dal-1
             vpc: couchdb-ci-farm-vpc
             zone: us-south-1
           ip_addrs:
+            bastion: 169.48.153.153
             private: 10.240.0.6
-            public: 169.48.154.14
+            public: null
           system:
             arch: amd64
             num_cpus: 4
             ram: 8
-        169.48.154.35:
+        couchdb-worker-x86-64-debian-dal-1-04:
           boot_volume:
-            device: 0717_1a5c43f9-a22a-4258-9514-13703dfc5fb0-wkn8z
+            device: 0717-cd555806-1455-4329-8f77-d2bbccaa2352-s2zmh
+            name: couchdb-ci-worker-dal-1-4-boot
+          instance:
+            created_at: '2020-01-07T17:53:05Z'
+            id: 0717_e8cb32f9-4861-48be-b22d-2b20d6e23b79
+            name: couchdb-worker-x86-64-debian-dal-1-04
+            profile: cx2-4x8
+            subnet: couchdb-ci-farm-dal-1
+            vpc: couchdb-ci-farm-vpc
+            zone: us-south-1
+          ip_addrs:
+            bastion: 169.48.153.153
+            private: 10.240.0.9
+            public: null
+          system:
+            arch: amd64
+            num_cpus: 4
+            ram: 8
+        couchdb-worker-x86-64-debian-dal-1-05:
+          boot_volume:
+            device: 0717-3de36e3f-40ab-49f6-b757-181f07e0ebf2-2mg2b
             name: couchdb-ci-worker-dal-1-5-boot
           instance:
-            created_at: '2019-12-11T16:51:55Z'
-            id: 0717_e4857481-a79e-4848-a1c5-38e2577f815c
-            name: couchdb-ci-worker-dal-1-5
+            created_at: '2020-01-07T17:53:40Z'
+            id: 0717_37a9351f-99a9-484d-aec5-c0da940c2e29
+            name: couchdb-worker-x86-64-debian-dal-1-05
             profile: cx2-4x8
             subnet: couchdb-ci-farm-dal-1
             vpc: couchdb-ci-farm-vpc
             zone: us-south-1
           ip_addrs:
-            private: 10.240.0.8
-            public: 169.48.154.35
+            bastion: 169.48.153.153
+            private: 10.240.0.10
+            public: null
           system:
             arch: amd64
             num_cpus: 4
             ram: 8
-
+        couchdb-worker-x86-64-debian-dal-1-06:
+          boot_volume:
+            device: 0717-2f6e67ea-d065-4ea0-92cb-5abc75070994-x9ntk
+            name: couchdb-ci-worker-dal-1-6-boot
+          instance:
+            created_at: '2020-01-07T21:03:39Z'
+            id: 0717_001ae386-bf78-4d1b-bde5-9bddd5de9089
+            name: couchdb-worker-x86-64-debian-dal-1-06
+            profile: cx2-4x8
+            subnet: couchdb-ci-farm-dal-1
+            vpc: couchdb-ci-farm-vpc
+            zone: us-south-1
+          ip_addrs:
+            bastion: 169.48.153.153
+            private: 10.240.0.14
+            public: null
+          system:
+            arch: amd64
+            num_cpus: 4
+            ram: 8
+        couchdb-worker-x86-64-debian-dal-1-07:
+          boot_volume:
+            device: 0717-87fed9c8-4f01-4ef3-92fb-67e7b9751a9f-zjjms
+            name: couchdb-ci-worker-dal-1-7-boot
+          instance:
+            created_at: '2020-01-07T21:04:06Z'
+            id: 0717_8455adf5-78bc-466f-ad18-44ce6988576d
+            name: couchdb-worker-x86-64-debian-dal-1-07
+            profile: cx2-4x8
+            subnet: couchdb-ci-farm-dal-1
+            vpc: couchdb-ci-farm-vpc
+            zone: us-south-1
+          ip_addrs:
+            bastion: 169.48.153.153
+            private: 10.240.0.15
+            public: null
+          system:
+            arch: amd64
+            num_cpus: 4
+            ram: 8
+        couchdb-worker-x86-64-debian-dal-1-08:
+          boot_volume:
+            device: 0717-1bde8488-3508-4824-9526-6c2e48c193b0-tfszz
+            name: couchdb-ci-worker-dal-1-8-boot
+          instance:
+            created_at: '2020-01-07T21:04:49Z'
+            id: 0717_e00b3214-e4f7-426e-b644-b40ae1c3fa79
+            name: couchdb-worker-x86-64-debian-dal-1-08
+            profile: cx2-4x8
+            subnet: couchdb-ci-farm-dal-1
+            vpc: couchdb-ci-farm-vpc
+            zone: us-south-1
+          ip_addrs:
+            bastion: 169.48.153.153
+            private: 10.240.0.16
+            public: null
+          system:
+            arch: amd64
+            num_cpus: 4
+            ram: 8

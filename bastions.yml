@@ -1,0 +1,4 @@
+---
+- hosts: bastions
+  roles:
+    - common

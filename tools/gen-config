@@ -1,0 +1,268 @@
+#!/usr/bin/env python
+
+import argparse as ap
+import ConfigParser as cp
+import json
+import os
+import re
+import textwrap
+
+import requests
+import yaml
+
+
+IBM_CLOUD_URL = "https://us-south.iaas.cloud.ibm.com/v1/"
+IAM_URL = "https://iam.cloud.ibm.com/identity/token"
+
+IBM_CLOUD_GENERATION = "2"
+IBM_CLOUD_VERSION = "2019-08-09"
+
+API_KEY = None
+IAM_TOKEN = None
+SESS = requests.session()
+
+
+def tostr(obj):
+    ret = {}
+    for k, v in obj.items():
+        if isinstance(k, unicode):
+            k = k.encode("utf-8")
+        if isinstance(v, dict):
+            ret[k] = tostr(v)
+        elif isinstance(v, unicode):
+            ret[k] = v.encode("utf-8")
+        else:
+            ret[k] = v
+    return ret
+
+
+def load_api_key():
+    global API_KEY
+    path = os.path.expanduser("~/.couchdb-infra-cm.cfg")
+    if not os.path.exists(path):
+        print "Missing config file: " + path
+        exit(1)
+    parser = cp.SafeConfigParser()
+    parser.read([path])
+    API_KEY = parser.get("ibmcloud", "api_key")
+
+
+def load_iam_token():
+    global IAM_TOKEN
+    headers = {
+        "Accept": "application/json"
+    }
+    data = {
+        "grant_type": "urn:ibm:params:oauth:grant-type:apikey",
+        "apikey": API_KEY
+    }
+    resp = SESS.post(IAM_URL, headers=headers, data=data)
+    resp.raise_for_status()
+    body = resp.json()
+    IAM_TOKEN = body["token_type"] + " " + body["access_token"]
+    SESS.headers["Authorization"] = IAM_TOKEN
+
+
+def init():
+    load_api_key()
+    load_iam_token()
+
+
+def list_instances():
+    url = IBM_CLOUD_URL + "/instances"
+    params = {
+        "version": IBM_CLOUD_VERSION,
+        "generation": IBM_CLOUD_GENERATION,
+        "limit": 100
+    }
+    while url:
+        resp = SESS.get(url, params=params)
+        body = resp.json()
+        for instance in body["instances"]:
+            interface_url = instance["primary_network_interface"]["href"]
+            resp = SESS.get(interface_url, params=params)
+            instance["primary_network_interface"] = resp.json()
+            yield instance
+        url = body.get("next")
+
+
+def load_bastion(bastions, instance):
+    if instance["status"] != "running":
+        return
+
+    name = instance["name"]
+    ip_addr = None
+    net_iface = instance["primary_network_interface"]
+    floating_ips = net_iface.get("floating_ips", [])
+    if not floating_ips:
+        print "Bastion is missing a public IP: %s" % name
+        exit(2)
+    ip_addr = floating_ips[0]["address"]
+
+    bastions[name] = {
+        "instance": {
+            "id": instance["id"],
+            "name": instance["name"],
+            "created_at": instance["created_at"],
+            "profile": instance["profile"]["name"],
+            "vpc": instance["vpc"]["name"],
+            "zone": instance["zone"]["name"],
+            "subnet": net_iface["subnet"]["name"]
+        },
+        "ip_addrs": {
+            "public": ip_addr,
+            "private": net_iface["primary_ipv4_address"]
+        },
+        "boot_volume": {
+            "device": instance["boot_volume_attachment"]["device"]["id"],
+            "name": instance["boot_volume_attachment"]["volume"]["name"]
+        },
+        "system": {
+            "arch": instance["vcpu"]["architecture"],
+            "num_cpus": instance["vcpu"]["count"],
+            "ram": instance["memory"]
+        }
+    }
+
+
+def load_ci_agent(ci_agents, instance):
+    if instance["status"] != "running":
+        return
+
+    name = instance["name"]
+    net_iface = instance["primary_network_interface"]
+
+    ci_agents[name] = {
+        "instance": {
+            "id": instance["id"],
+            "name": instance["name"],
+            "created_at": instance["created_at"],
+            "profile": instance["profile"]["name"],
+            "vpc": instance["vpc"]["name"],
+            "zone": instance["zone"]["name"],
+            "subnet": net_iface["subnet"]["name"]
+        },
+        "ip_addrs": {
+            "bastion": None,
+            "public": None,
+            "private": net_iface["primary_ipv4_address"]
+        },
+        "boot_volume": {
+            "device": instance["boot_volume_attachment"]["device"]["id"],
+            "name": instance["boot_volume_attachment"]["volume"]["name"]
+        },
+        "system": {
+            "arch": instance["vcpu"]["architecture"],
+            "num_cpus": instance["vcpu"]["count"],
+            "ram": instance["memory"]
+        }
+    }
+
+
+def assign_bastions(bastions, ci_agents):
+    subnets = {}
+    for (host, bastion) in bastions.items():
+        subnet = bastion["instance"]["subnet"]
+        ip_addr = bastion["ip_addrs"]["public"]
+        assert subnet not in subnets
+        subnets[subnet] = ip_addr
+    for (host, ci_agent) in ci_agents.items():
+        subnet = ci_agent["instance"]["subnet"]
+        assert subnet in subnets
+        ci_agent["ip_addrs"]["bastion"] = subnets[subnet]
+
+
+def write_inventory(fname, bastions, ci_agents):
+    inventory = {"all": {
+        "children": {
+            "ci_agents": {
+                "hosts": ci_agents
+            },
+            "bastions": {
+                "hosts": bastions
+            }
+        }
+    }}
+
+    with open(fname, "w") as handle:
+        yaml.dump(tostr(inventory), stream=handle, default_flow_style=False)
+
+
+def write_ssh_cfg(filename, bastions, ci_agents):
+    bastion_tmpl = textwrap.dedent("""\
+        Host {host}
+          Hostname {ip_addr}
+          User root
+          ForwardAgent yes
+          StrictHostKeyChecking no
+          ControlMaster auto
+          ControlPath ~/.ssh/ansible-%r@%h:%p
+          ControlPersist 30m
+
+        """)
+    ci_agent_tmpl = textwrap.dedent("""\
+        Host {host}
+          Hostname {ip_addr}
+          User root
+          StrictHostKeyChecking no
+          ProxyCommand /usr/bin/ssh -W %h:%p -q root@{bastion_ip}
+
+        """)
+    with open(filename, "w") as handle:
+        for host, info in bastions.items():
+            args = {
+                "host": host,
+                "ip_addr": info["ip_addrs"]["public"]
+            }
+            entry = bastion_tmpl.format(**args)
+            handle.write(entry)
+        for host, info in ci_agents.items():
+            args = {
+                "host": host,
+                "ip_addr": info["ip_addrs"]["private"],
+                "bastion_ip": info["ip_addrs"]["bastion"]
+            }
+            entry = ci_agent_tmpl.format(**args)
+            handle.write(entry)
+
+
+def parse_args():
+    parser = ap.ArgumentParser(description="Inventory Generation")
+    parser.add_argument(
+            "--inventory",
+            default="production",
+            metavar="FILE",
+            type=str,
+            help="Inventory filename to write"
+        )
+    parser.add_argument(
+            "--ssh-cfg",
+            default="ssh.cfg",
+            metavar="FILE",
+            type=str,
+            help="SSH config filename to write"
+        )
+    return parser.parse_args()
+
+def main():
+    args = parse_args()
+
+    init()
+
+    bastions = {}
+    ci_agents = {}
+
+    for instance in list_instances():
+        if instance["name"].startswith("couchdb-bastion"):
+            load_bastion(bastions, instance)
+        elif instance["name"].startswith("couchdb-worker"):
+            load_ci_agent(ci_agents, instance)
+
+    assign_bastions(bastions, ci_agents)
+
+    write_inventory(args.inventory, bastions, ci_agents)
+    write_ssh_cfg(args.ssh_cfg, bastions, ci_agents)
+
+
+if __name__ == "__main__":
+    main()
