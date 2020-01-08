@@ -6,6 +6,7 @@
   with_items:
     - https://github.com/davisp.keys
     - https://github.com/wohali.keys
+    - https://github.com/kocolosk.keys
 
 - name: Install basic ubiquitous packages
   apt:
