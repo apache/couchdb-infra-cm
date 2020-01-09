@@ -175,11 +175,11 @@ def assign_bastions(bastions, ci_agents):
 def write_inventory(fname, bastions, ci_agents):
     inventory = {"all": {
         "children": {
-            "ci_agents": {
-                "hosts": ci_agents
-            },
             "bastions": {
                 "hosts": bastions
+            },
+            "ci_agents": {
+                "hosts": ci_agents
             }
         }
     }}
@@ -196,7 +196,7 @@ def write_ssh_cfg(filename, bastions, ci_agents):
           ForwardAgent yes
           StrictHostKeyChecking no
           ControlMaster auto
-          ControlPath ~/.ssh/ansible-%r@%h:%p
+          ControlPath /tmp/ansible-%r@%h:%p
           ControlPersist 30m
 
         """)
@@ -205,18 +205,21 @@ def write_ssh_cfg(filename, bastions, ci_agents):
           Hostname {ip_addr}
           User root
           StrictHostKeyChecking no
-          ProxyCommand /usr/bin/ssh -W %h:%p -q root@{bastion_ip}
+          ProxyCommand /usr/bin/ssh -F ./ssh.cfg -W %h:%p -q root@{bastion_ip}
+          ControlMaster auto
+          ControlPath /tmp/ansible-%r@%h:%p
+          ControlPersist 30m
 
         """)
     with open(filename, "w") as handle:
-        for host, info in bastions.items():
+        for host, info in sorted(bastions.items()):
             args = {
                 "host": host,
                 "ip_addr": info["ip_addrs"]["public"]
             }
             entry = bastion_tmpl.format(**args)
             handle.write(entry)
-        for host, info in ci_agents.items():
+        for host, info in sorted(ci_agents.items()):
             args = {
                 "host": host,
                 "ip_addr": info["ip_addrs"]["private"],
