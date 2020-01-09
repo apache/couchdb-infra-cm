@@ -1,3 +1,12 @@
+- name: Configure TCP Keep-Alive
+  copy:
+    src: 50-ci-agent.sysctl.conf
+    dest: /etc/sysctl.d/50-ci-agent.conf
+    mode: 0644
+
+- name: Load TCP Keep-Alive configuration
+  script: /sbin/sysctl --load /etc/sysctl.d/50-ci-agent.conf
+
 - name: Install Docker gpg key for Apt
   apt_key:
     url: https://download.docker.com/linux/debian/gpg
