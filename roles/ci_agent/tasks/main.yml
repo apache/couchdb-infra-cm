@@ -3,39 +3,11 @@
     src: 50-ci-agent.sysctl.conf
     dest: /etc/sysctl.d/50-ci-agent.conf
     mode: 0644
+  register: ciagentsysctl
 
 - name: Load TCP Keep-Alive configuration
-  script: /sbin/sysctl --load /etc/sysctl.d/50-ci-agent.conf
-
-- name: Install Docker gpg key for Apt
-  apt_key:
-    url: https://download.docker.com/linux/debian/gpg
-    state: present
-
-- name: Setup Docker Apt repository
-  apt_repository:
-    repo: deb https://download.docker.com/linux/debian {{ ansible_distribution_release }} stable
-    filename: docker
-    state: present
-
-- name: Install Docker Packages
-  apt:
-    name: "{{ packages }}"
-  vars:
-    packages:
-      - containerd.io
-      - docker-ce
-      - docker-ce-cli
-
-- name: Install multi-architecture support for Docker
-  apt:
-    name: "{{ packages }}"
-    state: latest
-  vars:
-    packages:
-      - binfmt-support
-      - qemu
-      - qemu-user-static
+  shell: /sbin/sysctl --load /etc/sysctl.d/50-ci-agent.conf
+  when: ciagentsysctl.changed
 
 - name: Install Java 8
   apt:
@@ -56,27 +28,13 @@
     uid: 910
     groups:
       - jenkins
-      - docker
     state: present
     shell: /bin/bash
 
-- name: Install kill-old-docker.sh
-  copy:
-    src: kill-old-docker.sh
-    dest: /usr/local/bin/kill-old-docker.sh
-    mode: 0755
-
-- name: Add kill-old-docker.sh cron entry
-  cron:
-    name: Kill old docker containers
-    hour: '19'
-    job: /usr/local/bin/kill-old-docker.sh
-
-- name: Add docker prune cron entry
-  cron:
-    name: Docker prune
-    hour: '19'
-    job: /usr/bin/docker system prune -a -f --filter "until=72h"
+- name: Setup Docker on x86_64 hosts
+  include_tasks: docker.yml
+  when:
+    - ansible_facts['architecture'] == 'x86_64'
 
 - name: Create Jenkins runit service directory
   file:
