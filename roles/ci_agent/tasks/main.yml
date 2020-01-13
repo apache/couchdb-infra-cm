@@ -17,6 +17,58 @@
     packages:
       - openjdk-8-jre-headless
 
+- name: Install Docker gpg key for Apt
+  apt_key:
+    url: https://download.docker.com/linux/{{ ansible_distribution | lower }}/gpg
+    state: present
+
+- name: Setup Docker Apt repository
+  apt_repository:
+    repo: deb https://download.docker.com/linux/{{ansible_distribution | lower}} {{ ansible_distribution_release }} stable
+    filename: docker
+    state: present
+
+- name: Install Docker Packages
+  apt:
+    name: "{{ packages }}"
+  vars:
+    packages:
+      - containerd.io
+      - docker-ce
+
+- name: Install Docker CLI Package on Debian
+  apt:
+    name: docker-ce-cli
+  when: ansible_distribution == 'Debian'
+
+- name: Install multi-architecture support for Docker
+  apt:
+    name: "{{ packages }}"
+    state: latest
+  vars:
+    packages:
+      - binfmt-support
+      - qemu
+      - qemu-user-static
+
+- name: Install kill-old-docker.sh
+  copy:
+    src: kill-old-docker.sh
+    dest: /usr/local/bin/kill-old-docker.sh
+    mode: 0755
+
+- name: Add kill-old-docker.sh cron entry
+  cron:
+    name: Kill old docker containers
+    hour: '19'
+    job: /usr/local/bin/kill-old-docker.sh
+
+- name: Add docker prune cron entry
+  cron:
+    name: Docker prune
+    hour: '19'
+    job: /usr/bin/docker system prune -a -f --filter "until=72h"
+
 - name: Add group jenkins
   group:
     name: jenkins
@@ -28,13 +80,9 @@
     uid: 910
     groups:
       - jenkins
+      - docker
     state: present
     shell: /bin/bash
-
-- name: Setup Docker on x86_64 hosts
-  include_tasks: docker.yml
-  when:
-    - ansible_facts['architecture'] == 'x86_64'
 
 - name: Create Jenkins runit service directory
   file:
