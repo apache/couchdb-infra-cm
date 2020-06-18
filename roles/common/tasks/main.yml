@@ -5,8 +5,9 @@
     key: "{{ item }}"
   with_items:
     - https://github.com/davisp.keys
-    - https://github.com/wohali.keys
     - https://github.com/kocolosk.keys
+    - https://github.com/nickva.keys
+    - https://github.com/wohali.keys
 
 - name: Install basic ubiquitous packages
   apt:
