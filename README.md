@@ -86,12 +86,16 @@ important when provisioning new nodes. Modifying ansible scripts and apply
 changes to existing nodes can be done by any CouchDB PMC member that's been
 added to the CI nodes via this repository.
 
-Running Ansible
+Running Ansible Playbooks
 ---
 
     $ ansible-playbook bastions.yml
     $ ansible-playbook ci_agents.yml
 
+Running Ad Hoc Commands
+---
+
+    $ ansible -i production ci_agents -a "sudo sv restart jenkins"
 
 Useful Commands:
 ---
