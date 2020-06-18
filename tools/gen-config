@@ -111,11 +111,7 @@ def load_bastion(bastions, instance):
         },
         "ip_addrs": {
             "public": ip_addr,
-            "private": net_iface["primary_ipv4_address"]
-        },
-        "boot_volume": {
-            "device": instance["boot_volume_attachment"]["device"]["id"],
-            "name": instance["boot_volume_attachment"]["volume"]["name"]
+            "private": get_private_ip(instance)
         },
         "system": {
             "arch": instance["vcpu"]["architecture"],
@@ -145,11 +141,7 @@ def load_ci_agent(ci_agents, instance):
         "ip_addrs": {
             "bastion": None,
             "public": None,
-            "private": net_iface["primary_ipv4_address"]
-        },
-        "boot_volume": {
-            "device": instance["boot_volume_attachment"]["device"]["id"],
-            "name": instance["boot_volume_attachment"]["volume"]["name"]
+            "private": get_private_ip(instance)
         },
         "system": {
             "arch": instance["vcpu"]["architecture"],
@@ -157,6 +149,18 @@ def load_ci_agent(ci_agents, instance):
             "ram": instance["memory"]
         }
     }
+
+
+def get_private_ip(instance):
+    ip = instance["primary_network_interface"]["primary_ipv4_address"]
+    if ip:
+        return ip
+
+    for iface in instance["network_interfaces"]:
+        if iface.get("primary_ipv4_address"):
+            return iface["primary_ipv4_address"]
+
+    raise Exception("Unable to locate a private IP address")
 
 
 def assign_bastions(bastions, ci_agents):

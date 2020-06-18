@@ -3,9 +3,6 @@ all:
     bastions:
       hosts:
         couchdb-bastion-x86-64-debian-dal-1-1:
-          boot_volume:
-            device: 0717-24ba0f68-404a-4f68-82c8-0e885fc3e759-nx629
-            name: couchdb-ci-bastion-dal-1-1-boot
           instance:
             created_at: '2020-01-07T18:38:33Z'
             id: 0717_5ecb1169-95ac-465b-a505-d172093972d1
@@ -24,9 +21,6 @@ all:
     ci_agents:
       hosts:
         couchdb-worker-ppc64le-ubuntu-dal-1-01:
-          boot_volume:
-            device: 0717-49f918c4-64ed-45ac-9cfa-44d7e1f61250-5tftj
-            name: couchdb-worker-ppc64le-ubuntu-dal-1-boot
           instance:
             created_at: '2020-01-10T18:59:17Z'
             id: 0717_00d6f517-25e3-417c-b9d5-0d4fa8cde5ac
@@ -44,9 +38,6 @@ all:
             num_cpus: 4
             ram: 8
         couchdb-worker-ppc64le-ubuntu-dal-1-02:
-          boot_volume:
-            device: 0717-8c39f819-0432-49a5-b6d0-97da1e9e4000-h8rrr
-            name: couchdb-worker-ppc64le-02-boot
           instance:
             created_at: '2020-01-10T19:04:46Z'
             id: 0717_a0c8bd5a-5ffe-44da-8058-b2a87180ce9b
@@ -64,9 +55,6 @@ all:
             num_cpus: 4
             ram: 8
         couchdb-worker-x86-64-debian-dal-1-01:
-          boot_volume:
-            device: 0717_72564344-27ce-4e79-91d8-aacfaba35421-vv2gd
-            name: couchdb-ci-worker-dal-1-1-boot
           instance:
             created_at: '2019-12-11T16:50:33Z'
             id: 0717_4d64226a-ffad-4523-b5b3-78769a1d0bbe
@@ -84,9 +72,6 @@ all:
             num_cpus: 4
             ram: 8
         couchdb-worker-x86-64-debian-dal-1-02:
-          boot_volume:
-            device: 0717_5afac964-7ec6-4dad-a84d-b09b4d992949-vgqqr
-            name: couchdb-ci-worker-dal-1-2-boot
           instance:
             created_at: '2019-12-11T16:51:02Z'
             id: 0717_d97c67df-1f04-41f8-9461-9b1d5721e408
@@ -104,9 +89,6 @@ all:
             num_cpus: 4
             ram: 8
         couchdb-worker-x86-64-debian-dal-1-03:
-          boot_volume:
-            device: 0717_f51ebb9c-5081-47f0-bbf9-07a1b1ba5e73-nwzzg
-            name: couchdb-ci-worker-dal-1-3-boot
           instance:
             created_at: '2019-12-11T16:51:21Z'
             id: 0717_04df61d7-fb30-4251-9f59-7566c93c8a92
@@ -124,9 +106,6 @@ all:
             num_cpus: 4
             ram: 8
         couchdb-worker-x86-64-debian-dal-1-04:
-          boot_volume:
-            device: 0717-cd555806-1455-4329-8f77-d2bbccaa2352-s2zmh
-            name: couchdb-ci-worker-dal-1-4-boot
           instance:
             created_at: '2020-01-07T17:53:05Z'
             id: 0717_e8cb32f9-4861-48be-b22d-2b20d6e23b79
@@ -144,9 +123,6 @@ all:
             num_cpus: 4
             ram: 8
         couchdb-worker-x86-64-debian-dal-1-05:
-          boot_volume:
-            device: 0717-3de36e3f-40ab-49f6-b757-181f07e0ebf2-2mg2b
-            name: couchdb-ci-worker-dal-1-5-boot
           instance:
             created_at: '2020-01-07T17:53:40Z'
             id: 0717_37a9351f-99a9-484d-aec5-c0da940c2e29
@@ -164,9 +140,6 @@ all:
             num_cpus: 4
             ram: 8
         couchdb-worker-x86-64-debian-dal-1-06:
-          boot_volume:
-            device: 0717-2f6e67ea-d065-4ea0-92cb-5abc75070994-x9ntk
-            name: couchdb-ci-worker-dal-1-6-boot
           instance:
             created_at: '2020-01-07T21:03:39Z'
             id: 0717_001ae386-bf78-4d1b-bde5-9bddd5de9089
@@ -184,9 +157,6 @@ all:
             num_cpus: 4
             ram: 8
         couchdb-worker-x86-64-debian-dal-1-07:
-          boot_volume:
-            device: 0717-87fed9c8-4f01-4ef3-92fb-67e7b9751a9f-zjjms
-            name: couchdb-ci-worker-dal-1-7-boot
           instance:
             created_at: '2020-01-07T21:04:06Z'
             id: 0717_8455adf5-78bc-466f-ad18-44ce6988576d
@@ -204,12 +174,9 @@ all:
             num_cpus: 4
             ram: 8
         couchdb-worker-x86-64-debian-dal-1-08:
-          boot_volume:
-            device: 0717-1bde8488-3508-4824-9526-6c2e48c193b0-tfszz
-            name: couchdb-ci-worker-dal-1-8-boot
           instance:
-            created_at: '2020-01-07T21:04:49Z'
-            id: 0717_e00b3214-e4f7-426e-b644-b40ae1c3fa79
+            created_at: '2020-02-28T19:14:16Z'
+            id: 0717_512381f8-798c-4ef2-ab5f-35c1530bd89d
             name: couchdb-worker-x86-64-debian-dal-1-08
             profile: cx2-4x8
             subnet: couchdb-ci-farm-dal-1
@@ -217,7 +184,7 @@ all:
             zone: us-south-1
           ip_addrs:
             bastion: 169.48.153.153
-            private: 10.240.0.16
+            private: 10.240.0.12
             public: null
           system:
             arch: amd64
