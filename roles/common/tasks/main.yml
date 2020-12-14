@@ -9,6 +9,28 @@
     - https://github.com/nickva.keys
     - https://github.com/wohali.keys
 
+- name: Disable password authentication
+  lineinfile:
+    dest: /etc/ssh/sshd_config
+    regexp: '^(#\s*)?PasswordAuthentication'
+    line: "PasswordAuthentication no"
+    state: present
+  notify: restart sshd
+
+- name: Disable empty password login
+  lineinfile:
+    dest: /etc/ssh/sshd_config
+    regexp: '^(#\s*)?PermitEmptyPasswords'
+    line: 'PermitEmptyPasswords no'
+  notify: restart sshd
+
+- name: Disable challenge response authentication
+  lineinfile:
+    dest: /etc/ssh/sshd_config
+    regexp: '^(#\s*)?ChallengeResponseAuthentication'
+    line: 'ChallengeResponseAuthentication no'
+  notify: restart sshd
+
 - name: Install basic ubiquitous packages
   apt:
     name: "{{ packages }}"
