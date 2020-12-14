@@ -9,6 +9,11 @@
     - https://github.com/nickva.keys
     - https://github.com/wohali.keys
 
+- name: Lock root account
+  user:
+    name: root
+    password_lock: true
+
 - name: Disable password authentication
   lineinfile:
     dest: /etc/ssh/sshd_config
