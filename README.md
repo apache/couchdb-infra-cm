@@ -7,9 +7,13 @@ infrastructure.
 Setup
 ---
 
-    $ virtualenv venv
+    $ python3 -m venv venv
     $ source venv/bin/activate
     $ pip install -r requirements.txt
+
+On BigSur Mac may have to do:
+
+    $ env LDFLAGS="-L$(brew --prefix openssl@1.1)/lib" CFLAGS="-I$(brew --prefix openssl@1.1)/include" pip install -r requirements.txt
 
 Provisioning VMs
 ---
