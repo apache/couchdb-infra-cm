@@ -141,8 +141,8 @@ all:
             ram: 8
         couchdb-worker-x86-64-debian-dal-1-08:
           instance:
-            created_at: '2020-12-04T17:10:11Z'
-            id: 0717_07f645ee-bc5b-4dfc-a342-b59b9fe9c3cd
+            created_at: '2021-03-08T21:13:51Z'
+            id: 0717_d015b177-e247-4c10-9fdd-a06009127409
             name: couchdb-worker-x86-64-debian-dal-1-08
             profile: cx2-4x8
             subnet: couchdb-ci-farm-dal-1
@@ -150,7 +150,7 @@ all:
             zone: us-south-1
           ip_addrs:
             bastion: 169.48.153.153
-            private: 10.240.0.7
+            private: 10.240.0.4
             public: null
           system:
             arch: amd64
