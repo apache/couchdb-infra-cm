@@ -132,9 +132,9 @@ $ ssh -F ssh.cfg couchdb-worker-x86-64-debian-dal-1-01
 Power Instances
 ---
 
-Power isntances are configured in a special hard-coded `power` environment.
-This name is hard-coded. The `power` environemnt section, besides the
-`api_key`, should contain additional fields:
+Power isntances are configured in a special hard-coded `power` environment. The
+`power` environemnt section, besides the `api_key`, should contain additional
+required fields:
 
 ```ini
 [ibmcloud.power]
@@ -143,7 +143,4 @@ api_url = https://lon.power-iaas.cloud.ibm.com/pcloud/v1/cloud-instances/<cloud_
 crn = ...
 instance_id = ...
 ```
-
-All those might have to be obtained after the instance is provisioned from the
-team which provisioned them.
 
