@@ -76,8 +76,20 @@ Running `./tools/gen-config`
 
 Create a `~/.couchdb-infra-cm.cfg` file that contains the following options:
 
-    [ibmcloud]
+    [ibmcloud.<environment>]
     api_key = <REDACTED>
+    api_url = https://us-south.iaas.cloud.ibm.com/v1
+    crn = crn:v1:...
+    instance_id = 123-abc...
+
+
+`<environment>` is a tag used to differentiate multiple environments. It allows
+fetching instances from more than one IBM Cloud accounts. If `api_url` is
+provided, it will be used to fetch VPC instances. By default is uses
+`"https://us-south.iaas.cloud.ibm.com/v1"`. The `crn` field will be added as a
+`CRN: <crn>` header if provided. `instance_id` is used only by the `power`
+environment. (See `Power Instances` section for more details).
+
 
 The `tools/gen-config` script can then be used to generate our `production`
 inventory and `ssh.cfg` configuration:
@@ -115,3 +127,23 @@ I.e.,
 ```bash
 $ ssh -F ssh.cfg couchdb-worker-x86-64-debian-dal-1-01
 ```
+
+
+Power Instances
+---
+
+Power isntances are configured in a special hard-coded `power` environment.
+This name is hard-coded. The `power` environemnt section, besides the
+`api_key`, should contain additional fields:
+
+```ini
+[ibmcloud.power]
+api_key = ...
+api_url = https://lon.power-iaas.cloud.ibm.com/pcloud/v1/cloud-instances/<cloud_instance_id>
+crn = ...
+instance_id = ...
+```
+
+All those might have to be obtained after the instance is provisioned from the
+team which provisioned them.
+

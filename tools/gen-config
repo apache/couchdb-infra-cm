@@ -17,7 +17,7 @@ import yaml
 #
 ENV = {}
 
-IBM_CLOUD_URL = "https://us-south.iaas.cloud.ibm.com/v1/"
+IBM_CLOUD_URL = "https://us-south.iaas.cloud.ibm.com/v1"
 IAM_URL = "https://iam.cloud.ibm.com/identity/token"
 
 IBM_CLOUD_GENERATION = "2"
@@ -59,7 +59,10 @@ def load_environment():
             "api_generation" : parser.get(section, "api_generation",
                                           fallback=IBM_CLOUD_GENERATION),
             "api_version" : parser.get(section, "api_version",
-                                       fallback=IBM_CLOUD_VERSION)
+                                       fallback=IBM_CLOUD_VERSION),
+            "crn" : parser.get(section, "crn", fallback=None),
+            "instance_id" : parser.get(section, "instance_id",
+                                       fallback=None)
         }
 
 
@@ -78,6 +81,8 @@ def load_iam_tokens():
         body = resp.json()
         token = body["token_type"] + " " + body["access_token"]
         sess.headers["Authorization"] = token
+        for hk, hv in env_headers(env).items():
+            sess.headers[hk] = hv
         SESS[env] = sess
 
 
@@ -88,8 +93,10 @@ def init():
 
 def list_instances():
     for env in ENV:
-        yield from list_x86_instances(env)
-        #yield from list_power_instances(env)
+        if env != "power":
+            yield from list_x86_instances(env)
+        if env == "power":
+            yield from list_power_instances(env)
 
 
 def list_x86_instances(env):
@@ -107,25 +114,35 @@ def list_x86_instances(env):
 
 
 def list_power_instances(env):
-    url = ENV[env]["api_url"] + "/pvmInstances"
+    # It's really just one instance but to keep up with the shape of the rest
+    # of the code emit it as a generated item
+    if not ENV[env]["instance_id"]:
+        Exception("Power instances require an 'instance_id' setting")
+
+    instance_id = ENV[env]["instance_id"]
+    url = ENV[env]["api_url"] + "/pvm-instances/" + instance_id
     sess = SESS[env]
-    while url:
-        resp = sess.get(url, params=params(env))
-        body = resp.json()
-        for instance in body["instances"]:
-            interface_url = instance["primary_network_interface"]["href"]
-            resp = sess.get(interface_url, params=params(env))
-            instance["primary_network_interface"] = resp.json()
-            yield instance
-        url = body.get("next")
+    resp = sess.get(url, params=params(env))
+    instance = resp.json()
+    instance["name"] = instance["serverName"]
+    yield instance
+
 
 
 def params(env):
-    return {
-        "version": ENV[env]["api_version"],
-        "generation" : ENV[env]["api_generation"],
-        "limit": 100
-    }
+    params = {"limit": 100}
+    if ENV[env].get("api_version"):
+        params["version"] = ENV[env]["api_version"]
+    if ENV[env].get("api_generation"):
+        params["generation"] = ENV[env]["api_generation"]
+    return params
+
+
+def env_headers(env):
+    headers = {}
+    if ENV[env].get("crn"):
+        headers["crn"] = ENV[env]["crn"]
+    return headers
 
 
 def load_bastion(bastions, instance):
@@ -200,6 +217,38 @@ def load_ci_agent(ci_agents, instance):
     }
 
 
+def load_power_ci_agent(ci_agents, instance):
+    if instance["status"] != "ACTIVE":
+        return
+
+    name = instance["name"]
+    if name in ci_agents:
+        print(f"Duplicate ci_agent found {name}")
+        exit(2)
+
+    ci_agents[name] = {
+        "instance": {
+            "id": instance["pvmInstanceID"],
+            "name": instance["serverName"],
+            "created_at": instance["creationDate"],
+            "profile": instance["procType"],
+            "vpc" : instance["sysType"],
+            "zone": instance["placementGroup"],
+            "subnet" : None
+        },
+        "ip_addrs": {
+            "bastion": None,
+            "public": instance["addresses"][0]["externalIP"],
+            "private": instance["addresses"][0]["ip"]
+        },
+        "system": {
+            "arch": "power",
+            "num_cpu": instance["virtualCores"]["assigned"],
+            "ram": instance["memory"]
+        }
+    }
+
+
 def get_private_ip(instance):
     ip = instance["primary_network_interface"]["primary_ipv4_address"]
     if ip:
@@ -220,6 +269,9 @@ def assign_bastions(bastions, ci_agents):
         assert subnet not in subnets
         subnets[subnet] = ip_addr
     for (host, ci_agent) in ci_agents.items():
+        if ci_agent["system"]["arch"] == "power":
+            # Power systems use an external IP without bastions
+            continue
         subnet = ci_agent["instance"]["subnet"]
         assert subnet in subnets
         ci_agent["ip_addrs"]["bastion"] = subnets[subnet]
@@ -273,12 +325,20 @@ def write_ssh_cfg(filename, bastions, ci_agents):
             entry = bastion_tmpl.format(**args)
             handle.write(entry)
         for host, info in sorted(ci_agents.items()):
-            args = {
-                "host": host,
-                "ip_addr": info["ip_addrs"]["private"],
-                "bastion_ip": info["ip_addrs"]["bastion"]
-            }
-            entry = ci_agent_tmpl.format(**args)
+            if info["system"]["arch"] == "power":
+                # Power systems use an external IP directly
+                args = {
+                    "host": host,
+                    "ip_addr": info["ip_addrs"]["public"]
+                }
+                entry = bastion_tmpl.format(**args)
+            else:
+                args = {
+                    "host": host,
+                    "ip_addr": info["ip_addrs"]["private"],
+                    "bastion_ip": info["ip_addrs"]["bastion"]
+                }
+                entry = ci_agent_tmpl.format(**args)
             handle.write(entry)
 
 
@@ -314,6 +374,8 @@ def main():
             load_bastion(bastions, instance)
         elif instance["name"].startswith("couchdb-worker"):
             load_ci_agent(ci_agents, instance)
+        elif instance["name"].startswith("couchdb-ci"):
+            load_power_ci_agent(ci_agents, instance)
 
     assign_bastions(bastions, ci_agents)
 
