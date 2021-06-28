@@ -297,7 +297,7 @@ def write_ssh_cfg(filename, bastions, ci_agents):
     bastion_tmpl = textwrap.dedent("""\
         Host {host}
           Hostname {ip_addr}
-          User root
+          User {user}
           ForwardAgent yes
           StrictHostKeyChecking no
           ControlMaster auto
@@ -308,7 +308,7 @@ def write_ssh_cfg(filename, bastions, ci_agents):
     ci_agent_tmpl = textwrap.dedent("""\
         Host {host}
           Hostname {ip_addr}
-          User root
+          User {user}
           StrictHostKeyChecking no
           ProxyCommand /usr/bin/ssh -F ./ssh.cfg -W %h:%p -q root@{bastion_ip}
           ControlMaster auto
@@ -319,6 +319,7 @@ def write_ssh_cfg(filename, bastions, ci_agents):
     with open(filename, "w") as handle:
         for host, info in sorted(bastions.items()):
             args = {
+                "user": "root",
                 "host": host,
                 "ip_addr": info["ip_addrs"]["public"]
             }
@@ -328,12 +329,14 @@ def write_ssh_cfg(filename, bastions, ci_agents):
             if info["system"]["arch"] == "power":
                 # Power systems use an external IP directly
                 args = {
+                    "user": "ubuntu",
                     "host": host,
                     "ip_addr": info["ip_addrs"]["public"]
                 }
                 entry = bastion_tmpl.format(**args)
             else:
                 args = {
+                    "user": "root",
                     "host": host,
                     "ip_addr": info["ip_addrs"]["private"],
                     "bastion_ip": info["ip_addrs"]["bastion"]
