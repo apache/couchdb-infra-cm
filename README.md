@@ -82,6 +82,11 @@ Create a `~/.couchdb-infra-cm.cfg` file that contains the following options:
     crn = crn:v1:...
     instance_id = 123-abc...
 
+    [extra.<instancename>]
+    ip_addr = x.y.z.w
+    arch = s390x
+    num_cpus = 4
+    ram = 8
 
 `<environment>` is a tag used to differentiate multiple environments. It allows
 fetching instances from more than one IBM Cloud accounts. If `api_url` is
@@ -90,6 +95,8 @@ provided, it will be used to fetch VPC instances. By default is uses
 `CRN: <crn>` header if provided. `instance_id` is used only by the `power`
 environment. (See `Power Instances` section for more details).
 
+`extra.<instancename>` can be an extra unmanaged manually added instance which
+is not discoverable via cloud.ibm.com with an API key.
 
 The `tools/gen-config` script can then be used to generate our `production`
 inventory and `ssh.cfg` configuration:

@@ -17,6 +17,9 @@ import yaml
 #
 ENV = {}
 
+# Hard-coded VMs managed by someone else without access to cloud.ibm.com
+EXTRA = {}
+
 IBM_CLOUD_URL = "https://us-south.iaas.cloud.ibm.com/v1"
 IAM_URL = "https://iam.cloud.ibm.com/identity/token"
 
@@ -38,6 +41,25 @@ def load_environment():
     parser.read([path])
 
     for section in parser.sections():
+        if section.startswith("extra"):
+            split = section.split(".")
+            if len(split) != 2:
+                print(f"Invalid 'extra' section {section}")
+                exit(1)
+
+            (_, name) = split
+
+            EXTRA[name] = {
+                "name" : name,
+                "instance_id" : parser.get(section, "id", fallback=name),
+                "ip_addr": parser.get(section, "ip_addr"),
+                "system": {
+                    "arch": parser.get(section, "arch"),
+                    "num_cpus": int(parser.get(section, "num_cpus")),
+                    "ram": int(parser.get(section, "ram"))
+                }
+            }
+
         if not section.startswith("ibmcloud"):
             continue
 
@@ -97,6 +119,8 @@ def list_instances():
             yield from list_x86_instances(env)
         if env == "power":
             yield from list_power_instances(env)
+    for inst  in EXTRA.values():
+        yield inst
 
 
 def list_x86_instances(env):
@@ -125,6 +149,7 @@ def list_power_instances(env):
     resp = sess.get(url, params=params(env))
     instance = resp.json()
     instance["name"] = instance["serverName"]
+    instance["system"] = {"arch": "power"}
     yield instance
 
 
@@ -243,9 +268,29 @@ def load_power_ci_agent(ci_agents, instance):
         },
         "system": {
             "arch": "power",
-            "num_cpu": instance["virtualCores"]["assigned"],
+            "num_cpus": instance["virtualCores"]["assigned"],
             "ram": instance["memory"]
         }
+    }
+
+
+def load_s390x_ci_agent(ci_agents, instance):
+    name = instance["name"]
+    if name in ci_agents:
+        print(f"Duplicate ci_agent found {name}")
+        exit(2)
+
+    ci_agents[name] = {
+        "instance": {
+            "id": instance["instance_id"],
+            "name" : instance["name"],
+            "subnet": None
+        },
+        "ip_addrs": {
+            "bastion": None,
+            "public": instance["ip_addr"]
+        },
+        "system": instance["system"]
     }
 
 
@@ -269,8 +314,8 @@ def assign_bastions(bastions, ci_agents):
         assert subnet not in subnets
         subnets[subnet] = ip_addr
     for (host, ci_agent) in ci_agents.items():
-        if ci_agent["system"]["arch"] == "power":
-            # Power systems use an external IP without bastions
+        if ci_agent["system"]["arch"] in ["power", "s390x"]:
+            # Power & s390x an external IP without bastions
             continue
         subnet = ci_agent["instance"]["subnet"]
         assert subnet in subnets
@@ -326,8 +371,8 @@ def write_ssh_cfg(filename, bastions, ci_agents):
             entry = bastion_tmpl.format(**args)
             handle.write(entry)
         for host, info in sorted(ci_agents.items()):
-            if info["system"]["arch"] == "power":
-                # Power systems use an external IP directly
+            if info["system"]["arch"] in ["power", "s390x"]:
+                # Power or s390x use an external IP directly
                 args = {
                     "user": "ubuntu",
                     "host": host,
@@ -377,8 +422,10 @@ def main():
             load_bastion(bastions, instance)
         elif instance["name"].startswith("couchdb-worker"):
             load_ci_agent(ci_agents, instance)
-        elif instance["name"].startswith("couchdb-ci"):
+        elif instance["system"]["arch"] == "power":
             load_power_ci_agent(ci_agents, instance)
+        elif instance["system"]["arch"] == "s390x":
+            load_s390x_ci_agent(ci_agents, instance)
 
     assign_bastions(bastions, ci_agents)
 

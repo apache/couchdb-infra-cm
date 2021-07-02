@@ -35,7 +35,7 @@ all:
             public: 158.175.161.155
           system:
             arch: power
-            num_cpu: 2
+            num_cpus: 2
             ram: 16
         couchdb-worker-x86-64-debian-dal-1-01:
           instance:
@@ -171,5 +171,17 @@ all:
             public: null
           system:
             arch: amd64
+            num_cpus: 4
+            ram: 8
+        couchdb01:
+          instance:
+            id: couchdb01
+            name: couchdb01
+            subnet: null
+          ip_addrs:
+            bastion: null
+            public: 148.100.113.138
+          system:
+            arch: s390x
             num_cpus: 4
             ram: 8
