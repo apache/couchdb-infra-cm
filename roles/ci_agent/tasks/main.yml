@@ -1,4 +1,5 @@
 - name: Configure TCP Keep-Alive
+  become: yes
   copy:
     src: 50-ci-agent.sysctl.conf
     dest: /etc/sysctl.d/50-ci-agent.conf
@@ -6,10 +7,12 @@
   register: ciagentsysctl
 
 - name: Load TCP Keep-Alive configuration
+  become: yes
   shell: /sbin/sysctl --load /etc/sysctl.d/50-ci-agent.conf
   when: ciagentsysctl.changed
 
 - name: Install Java 8
+  become: yes
   apt:
     name: "{{ packages }}"
     state: latest
@@ -18,17 +21,20 @@
       - openjdk-8-jre-headless
 
 - name: Install Docker gpg key for Apt
+  become: yes
   apt_key:
     url: https://download.docker.com/linux/{{ ansible_distribution | lower }}/gpg
     state: present
 
 - name: Setup Docker Apt repository
+  become: yes
   apt_repository:
     repo: deb https://download.docker.com/linux/{{ansible_distribution | lower}} {{ ansible_distribution_release }} stable
     filename: docker
     state: present
 
 - name: Install Docker Packages
+  become: yes
   apt:
     name: "{{ packages }}"
   vars:
@@ -36,12 +42,14 @@
       - containerd.io
       - docker-ce
 
-- name: Install Docker CLI Package on Debian
+- name: Install Docker CLI Package on Debian or Ubuntu
+  become: yes
   apt:
     name: docker-ce-cli
-  when: ansible_distribution == 'Debian'
+  when: ansible_distribution == 'Debian' or  ansible_distribution == 'Ubuntu'
 
 - name: Install multi-architecture support for Docker
+  become: yes
   apt:
     name: "{{ packages }}"
     state: latest
@@ -52,29 +60,34 @@
       - qemu-user-static
 
 - name: Install kill-old-docker.sh
+  become: yes
   copy:
     src: kill-old-docker.sh
     dest: /usr/local/bin/kill-old-docker.sh
     mode: 0755
 
 - name: Add kill-old-docker.sh cron entry
+  become: yes
   cron:
     name: Kill old docker containers
     hour: '19'
     job: /usr/local/bin/kill-old-docker.sh
 
 - name: Add docker prune cron entry
+  become: yes
   cron:
     name: Docker prune
     hour: '19'
     job: /usr/bin/docker system prune -a -f --filter "until=72h"
 
 - name: Add group jenkins
+  become: yes
   group:
     name: jenkins
     gid: 910
 
 - name: Add user jenkins
+  become: yes
   user:
     name: jenkins
     uid: 910
@@ -85,31 +98,34 @@
     shell: /bin/bash
 
 - name: Create Jenkins runit service directory
+  become: yes
   file:
     path: /etc/sv/jenkins
     state: directory
 
 - name: Create Jenkins runit log directory
+  become: yes
   file:
     path: /etc/sv/jenkins/log/main
     state: directory
 
 - name : Create Jenkins runit run script
+  become: yes
   template:
     src: runit-main.j2
     dest: /etc/sv/jenkins/run
     mode: 0755
 
 - name: Create Jenkins runit logs run script
+  become: yes
   copy:
     src: runit-logs
     dest: /etc/sv/jenkins/log/run
     mode: 0755
 
 - name: Enable Jenkins runit service
+  become: yes
   file:
     src: /etc/sv/jenkins
     dest: /etc/service/jenkins
     state: link
-
-

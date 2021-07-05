@@ -1,4 +1,16 @@
-- name: Allow CouchDB Infra access
+- name: Allow CouchDB Infra access on Ubuntu
+  authorized_key:
+    user: ubuntu
+    state: present
+    key: "{{ item }}"
+  with_items:
+    - https://github.com/davisp.keys
+    - https://github.com/kocolosk.keys
+    - https://github.com/nickva.keys
+    - https://github.com/wohali.keys
+  when: ansible_distribution == "Ubuntu"
+
+- name: Allow CouchDB Infra access on Debian
   authorized_key:
     user: root
     state: present
@@ -8,13 +20,16 @@
     - https://github.com/kocolosk.keys
     - https://github.com/nickva.keys
     - https://github.com/wohali.keys
+  when: ansible_distribution == "Debian"
 
 - name: Lock root account
+  become: yes
   user:
     name: root
     password_lock: true
 
 - name: Disable password authentication
+  become: yes
   lineinfile:
     dest: /etc/ssh/sshd_config
     regexp: '^(#\s*)?PasswordAuthentication'
@@ -23,6 +38,7 @@
   notify: restart sshd
 
 - name: Disable empty password login
+  become: yes
   lineinfile:
     dest: /etc/ssh/sshd_config
     regexp: '^(#\s*)?PermitEmptyPasswords'
@@ -30,6 +46,7 @@
   notify: restart sshd
 
 - name: Disable challenge response authentication
+  become: yes
   lineinfile:
     dest: /etc/ssh/sshd_config
     regexp: '^(#\s*)?ChallengeResponseAuthentication'
@@ -37,6 +54,7 @@
   notify: restart sshd
 
 - name: Install basic ubiquitous packages
+  become: yes
   apt:
     name: "{{ packages }}"
     state: latest
@@ -65,4 +83,5 @@
       - tcpdump
       - tmux
       - vim
+      - emacs-nox
       - wget
