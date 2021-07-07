@@ -20,23 +20,23 @@ all:
             ram: 4
     ci_agents:
       hosts:
-        couchdb-ci-ubuntu-2:
+        couchdb-ci4:
           instance:
-            created_at: '2021-07-01T21:42:29.000Z'
-            id: c505f539-2cd9-4c8a-8eab-d4340218826c
-            name: couchdb-ci-ubuntu-2
+            created_at: '2021-07-07T21:15:53.000Z'
+            id: 972bfb37-5f61-46d1-aa26-aa6c82008c02
+            name: couchdb-ci4
             profile: shared
             subnet: null
             vpc: s922
             zone: none
           ip_addrs:
             bastion: null
-            private: 192.168.150.155
-            public: 158.175.161.155
+            private: 192.168.151.221
+            public: 158.175.162.221
           system:
             arch: power
             num_cpus: 2
-            ram: 16
+            ram: 32
         couchdb-worker-x86-64-debian-dal-1-01:
           instance:
             created_at: '2020-12-04T17:37:42Z'
