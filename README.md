@@ -56,6 +56,7 @@ The steps for provisioning a new bastion box are:
 
 1. Provision the VM using https://cloud.ibm.com
 2. Run `./tools/gen-config`
+2. Include the generated `ssh.cfg` in `~/.ssh/config` file
 3. Run `ansible-playbook bastions.yml`
 
 Bastion names should follow this pattern:
@@ -123,16 +124,18 @@ Running Ad Hoc Commands
 Useful Commands:
 ---
 
+(Assuming the generated `ssh.cfg` was included in `~/.ssh/config`)
+
 If you want to ssh directly to a node, you can do:
 
 ```bash
-$ ssh -F ssh.cfg $hostname
+$ ssh $hostname
 ```
 
 I.e.,
 
 ```bash
-$ ssh -F ssh.cfg couchdb-worker-x86-64-debian-dal-1-01
+$ ssh couchdb-worker-x86-64-debian-dal-1-01
 ```
 
 

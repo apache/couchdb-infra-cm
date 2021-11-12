@@ -230,7 +230,8 @@ def load_ci_agent(ci_agents, instance):
             "subnet": net_iface["subnet"]["name"]
         },
         "ip_addrs": {
-            "bastion": None,
+            "bastion_ip": None,
+            "bastion_host": None,
             "public": None,
             "private": get_private_ip(instance)
         },
@@ -262,7 +263,8 @@ def load_power_ci_agent(ci_agents, instance):
             "subnet" : None
         },
         "ip_addrs": {
-            "bastion": None,
+            "bastion_ip": None,
+            "bastion_host": None,
             "public": instance["addresses"][0]["externalIP"],
             "private": instance["addresses"][0]["ip"]
         },
@@ -287,7 +289,8 @@ def load_s390x_ci_agent(ci_agents, instance):
             "subnet": None
         },
         "ip_addrs": {
-            "bastion": None,
+            "bastion_ip": None,
+            "bastion_host": None,
             "public": instance["ip_addr"]
         },
         "system": instance["system"]
@@ -312,14 +315,16 @@ def assign_bastions(bastions, ci_agents):
         subnet = bastion["instance"]["subnet"]
         ip_addr = bastion["ip_addrs"]["public"]
         assert subnet not in subnets
-        subnets[subnet] = ip_addr
+        subnets[subnet] = (ip_addr, host)
     for (host, ci_agent) in ci_agents.items():
         if ci_agent["system"]["arch"] in ["power", "s390x"]:
             # Power & s390x an external IP without bastions
             continue
         subnet = ci_agent["instance"]["subnet"]
         assert subnet in subnets
-        ci_agent["ip_addrs"]["bastion"] = subnets[subnet]
+        (bastion_ip, bastion_host) = subnets[subnet]
+        ci_agent["ip_addrs"]["bastion_ip"] = bastion_ip
+        ci_agent["ip_addrs"]["bastion_host"] = bastion_host
 
 
 def write_inventory(fname, bastions, ci_agents):
@@ -355,11 +360,7 @@ def write_ssh_cfg(filename, bastions, ci_agents):
           Hostname {ip_addr}
           User {user}
           StrictHostKeyChecking no
-          ProxyCommand /usr/bin/ssh -F ./ssh.cfg -W %h:%p -q root@{bastion_ip}
-          ControlMaster auto
-          ControlPath /tmp/ansible-%r@%h:%p
-          ControlPersist 30m
-
+          ProxyCommand /usr/bin/ssh -W %h:%p -q root@{bastion_host}
         """)
     with open(filename, "w") as handle:
         for host, info in sorted(bastions.items()):
@@ -380,11 +381,14 @@ def write_ssh_cfg(filename, bastions, ci_agents):
                 }
                 entry = bastion_tmpl.format(**args)
             else:
+                bastion_ip =  info["ip_addrs"]["bastion_ip"]
+                bastion_host = info["ip_addrs"]["bastion_host"]
                 args = {
                     "user": "root",
                     "host": host,
                     "ip_addr": info["ip_addrs"]["private"],
-                    "bastion_ip": info["ip_addrs"]["bastion"]
+                    "bastion_ip": bastion_ip,
+                    "bastion_host": bastion_host
                 }
                 entry = ci_agent_tmpl.format(**args)
             handle.write(entry)
@@ -430,7 +434,10 @@ def main():
     assign_bastions(bastions, ci_agents)
 
     write_inventory(args.inventory, bastions, ci_agents)
-    write_ssh_cfg(args.ssh_cfg, bastions, ci_agents)
+    sshf = args.ssh_cfg
+    write_ssh_cfg(sshf, bastions, ci_agents)
+    sshf_full = os.path.abspath(os.path.expanduser(os.path.expandvars(sshf)))
+    print("Add 'Include %s' to your ~/.ssh/config file" % sshf_full)
 
 
 if __name__ == "__main__":

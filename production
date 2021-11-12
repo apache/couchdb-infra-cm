@@ -30,7 +30,8 @@ all:
             vpc: s922
             zone: none
           ip_addrs:
-            bastion: null
+            bastion_host: null
+            bastion_ip: null
             private: 192.168.151.219
             public: 158.175.162.219
           system:
@@ -47,7 +48,8 @@ all:
             vpc: couchdb-ci-farm-vpc
             zone: us-south-1
           ip_addrs:
-            bastion: 169.48.153.153
+            bastion_host: couchdb-bastion-x86-64-debian-dal-1-01
+            bastion_ip: 169.48.153.153
             private: 10.240.0.16
             public: null
           system:
@@ -64,7 +66,8 @@ all:
             vpc: couchdb-ci-farm-vpc
             zone: us-south-1
           ip_addrs:
-            bastion: 169.48.153.153
+            bastion_host: couchdb-bastion-x86-64-debian-dal-1-01
+            bastion_ip: 169.48.153.153
             private: 10.240.0.15
             public: null
           system:
@@ -81,7 +84,8 @@ all:
             vpc: couchdb-ci-farm-vpc
             zone: us-south-1
           ip_addrs:
-            bastion: 169.48.153.153
+            bastion_host: couchdb-bastion-x86-64-debian-dal-1-01
+            bastion_ip: 169.48.153.153
             private: 10.240.0.14
             public: null
           system:
@@ -98,7 +102,8 @@ all:
             vpc: couchdb-ci-farm-vpc
             zone: us-south-1
           ip_addrs:
-            bastion: 169.48.153.153
+            bastion_host: couchdb-bastion-x86-64-debian-dal-1-01
+            bastion_ip: 169.48.153.153
             private: 10.240.0.13
             public: null
           system:
@@ -115,7 +120,8 @@ all:
             vpc: couchdb-ci-farm-vpc
             zone: us-south-1
           ip_addrs:
-            bastion: 169.48.153.153
+            bastion_host: couchdb-bastion-x86-64-debian-dal-1-01
+            bastion_ip: 169.48.153.153
             private: 10.240.0.12
             public: null
           system:
@@ -132,7 +138,8 @@ all:
             vpc: couchdb-ci-farm-vpc
             zone: us-south-1
           ip_addrs:
-            bastion: 169.48.153.153
+            bastion_host: couchdb-bastion-x86-64-debian-dal-1-01
+            bastion_ip: 169.48.153.153
             private: 10.240.0.10
             public: null
           system:
@@ -149,7 +156,8 @@ all:
             vpc: couchdb-ci-farm-vpc
             zone: us-south-1
           ip_addrs:
-            bastion: 169.48.153.153
+            bastion_host: couchdb-bastion-x86-64-debian-dal-1-01
+            bastion_ip: 169.48.153.153
             private: 10.240.0.8
             public: null
           system:
@@ -166,7 +174,8 @@ all:
             vpc: couchdb-ci-farm-vpc
             zone: us-south-1
           ip_addrs:
-            bastion: 169.48.153.153
+            bastion_host: couchdb-bastion-x86-64-debian-dal-1-01
+            bastion_ip: 169.48.153.153
             private: 10.240.0.4
             public: null
           system:
@@ -179,7 +188,8 @@ all:
             name: couchdb01
             subnet: null
           ip_addrs:
-            bastion: null
+            bastion_host: null
+            bastion_ip: null
             public: 148.100.113.138
           system:
             arch: s390x
