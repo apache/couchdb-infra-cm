@@ -361,6 +361,7 @@ def write_ssh_cfg(filename, bastions, ci_agents):
           User {user}
           StrictHostKeyChecking no
           ProxyCommand /usr/bin/ssh -W %h:%p -q root@{bastion_host}
+
         """)
     with open(filename, "w") as handle:
         for host, info in sorted(bastions.items()):
