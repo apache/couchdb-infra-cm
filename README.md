@@ -119,7 +119,10 @@ Running Ansible Playbooks
 Running Ad Hoc Commands
 ---
 
-    $ ansible -i production ci_agents -a "sudo sv restart jenkins"
+    % ansible -i production ci_agents -a "sudo sv restart jenkins"
+    % ansible -v -i production ci_agents -a "sudo apt list --upgradable"
+    % ansible -v -i production ci_agents -a "sudo unattended-upgrade -v"
+
 
 Useful Commands:
 ---
