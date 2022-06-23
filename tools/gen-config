@@ -13,7 +13,6 @@ import yaml
 
 # Environments read from config file
 # {"cloudant": {"api_key": "abc123", ...}
-# {"power": {"api_key", "cde456", ...}
 #
 ENV = {}
 
@@ -117,8 +116,6 @@ def list_instances():
     for env in ENV:
         if env != "power":
             yield from list_x86_instances(env)
-        if env == "power":
-            yield from list_power_instances(env)
     for inst  in EXTRA.values():
         yield inst
 
@@ -135,24 +132,6 @@ def list_x86_instances(env):
             instance["primary_network_interface"] = resp.json()
             yield instance
         url = body.get("next")
-
-
-def list_power_instances(env):
-    # It's really just one instance but to keep up with the shape of the rest
-    # of the code emit it as a generated item
-    if not ENV[env]["instance_id"]:
-        Exception("Power instances require an 'instance_id' setting")
-
-    instance_id = ENV[env]["instance_id"]
-    url = ENV[env]["api_url"] + "/pvm-instances/" + instance_id
-    sess = SESS[env]
-    resp = sess.get(url, params=params(env))
-    instance = resp.json()
-    instance["name"] = instance["serverName"]
-    instance["system"] = {"arch": "power"}
-    yield instance
-
-
 
 def params(env):
     params = {"limit": 100}
@@ -242,40 +221,6 @@ def load_ci_agent(ci_agents, instance):
         }
     }
 
-
-def load_power_ci_agent(ci_agents, instance):
-    if instance["status"] != "ACTIVE":
-        return
-
-    name = instance["name"]
-    if name in ci_agents:
-        print(f"Duplicate ci_agent found {name}")
-        exit(2)
-
-    ci_agents[name] = {
-        "instance": {
-            "id": instance["pvmInstanceID"],
-            "name": instance["serverName"],
-            "created_at": instance["creationDate"],
-            "profile": instance["procType"],
-            "vpc" : instance["sysType"],
-            "zone": instance["placementGroup"],
-            "subnet" : None
-        },
-        "ip_addrs": {
-            "bastion_ip": None,
-            "bastion_host": None,
-            "public": instance["addresses"][0]["externalIP"],
-            "private": instance["addresses"][0]["ip"]
-        },
-        "system": {
-            "arch": "power",
-            "num_cpus": instance["virtualCores"]["assigned"],
-            "ram": instance["memory"]
-        }
-    }
-
-
 def load_s390x_ci_agent(ci_agents, instance):
     name = instance["name"]
     if name in ci_agents:
@@ -296,6 +241,25 @@ def load_s390x_ci_agent(ci_agents, instance):
         "system": instance["system"]
     }
 
+def load_ppc64le_ci_agent(ci_agents, instance):
+    name = instance["name"]
+    if name in ci_agents:
+        print(f"Duplicate ci_agent found {name}")
+        exit(2)
+
+    ci_agents[name] = {
+        "instance": {
+            "id": instance["instance_id"],
+            "name" : instance["name"],
+            "subnet": None
+        },
+        "ip_addrs": {
+            "bastion_ip": None,
+            "bastion_host": None,
+            "public": instance["ip_addr"]
+        },
+        "system": instance["system"]
+    }
 
 def get_private_ip(instance):
     ip = instance["primary_network_interface"]["primary_ipv4_address"]
@@ -317,7 +281,7 @@ def assign_bastions(bastions, ci_agents):
         assert subnet not in subnets
         subnets[subnet] = (ip_addr, host)
     for (host, ci_agent) in ci_agents.items():
-        if ci_agent["system"]["arch"] in ["power", "s390x"]:
+        if ci_agent["system"]["arch"] in ["ppc64le", "s390x"]:
             # Power & s390x an external IP without bastions
             continue
         subnet = ci_agent["instance"]["subnet"]
@@ -373,7 +337,7 @@ def write_ssh_cfg(filename, bastions, ci_agents):
             entry = bastion_tmpl.format(**args)
             handle.write(entry)
         for host, info in sorted(ci_agents.items()):
-            if info["system"]["arch"] in ["power", "s390x"]:
+            if info["system"]["arch"] in ["ppc64le", "s390x"]:
                 # Power or s390x use an external IP directly
                 args = {
                     "user": "ubuntu",
@@ -427,8 +391,8 @@ def main():
             load_bastion(bastions, instance)
         elif instance["name"].startswith("couchdb-worker"):
             load_ci_agent(ci_agents, instance)
-        elif instance["system"]["arch"] == "power":
-            load_power_ci_agent(ci_agents, instance)
+        elif instance["system"]["arch"] == "ppc64le":
+            load_ppc64le_ci_agent(ci_agents, instance)
         elif instance["system"]["arch"] == "s390x":
             load_s390x_ci_agent(ci_agents, instance)
 
