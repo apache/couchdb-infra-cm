@@ -185,7 +185,7 @@ all:
           ip_addrs:
             bastion_host: null
             bastion_ip: null
-            public: 140.211.10.121
+            public: 140.211.10.101
           system:
             arch: ppc64le
             num_cpus: 8
