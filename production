@@ -164,19 +164,6 @@ all:
             arch: amd64
             num_cpus: 4
             ram: 8
-        couchdb01:
-          instance:
-            id: couchdb01
-            name: couchdb01
-            subnet: null
-          ip_addrs:
-            bastion_host: null
-            bastion_ip: null
-            public: 148.100.113.138
-          system:
-            arch: s390x
-            num_cpus: 4
-            ram: 8
         ubuntu:
           instance:
             id: ubuntu
