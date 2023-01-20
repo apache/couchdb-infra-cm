@@ -1,0 +1,5 @@
+#!/bin/sh -x
+cd /home/jenkins
+curl -O https://ci-couchdb.apache.org/jnlpJars/agent.jar
+
+chpst -ujenkins java -jar agent.jar -jnlpUrl {{ jenkins_node_url }} -workDir "/home/jenkins" -secret {{ jenkins_secret }}

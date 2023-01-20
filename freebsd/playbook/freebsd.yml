@@ -1,0 +1,102 @@
+---
+- hosts: ci
+  remote_user: freebsd
+  become: yes
+  tasks:
+
+  - name: install tmux
+    ansible.builtin.package:
+      name: tmux
+      state: present
+
+  - name: install emacs-nox
+    ansible.builtin.package:
+      name: emacs-nox
+      state: present
+
+  - name: install erlang 24
+    ansible.builtin.package:
+      name: erlang
+      state: present
+
+  - name: install elixir
+    ansible.builtin.package:
+      name: elixir
+      state: present
+
+  - name: install node
+    ansible.builtin.package:
+      name: node
+      state: present
+
+  - name: install py39-pip
+    ansible.builtin.package:
+      name: py39-pip
+      state: present
+
+  - name: install spidermonkey 91
+    ansible.builtin.package:
+      name: spidermonkey91
+      state: present
+
+  - name: install help2man
+    ansible.builtin.package:
+      name: help2man
+      state: present
+
+  - name: install openjre 11
+    ansible.builtin.package:
+      name: openjdk11-jre
+      state: present
+
+  - name: install runit
+    ansible.builtin.package:
+      name: runit
+      state: present
+
+  - name: install sphinx
+    ansible.builtin.pip:
+      name: sphinx
+
+  - name: install docutils
+    ansible.builtin.pip:
+      name: docutils
+
+  - name: install pygments
+    ansible.builtin.pip:
+      name: pygments
+
+  - name: install sphinx_rtd_theme
+    ansible.builtin.pip:
+      name: sphinx_rtd_theme
+
+  - name: create jenkins user
+    user:
+      name: jenkins
+      system: true
+
+  - name: set up runit - create service dir
+    file:
+      state: directory
+      dest: /var/service/jenkins
+      recurse: true
+
+  - name: set up runit - upload run script
+    template:
+      src: templates/run.sh.j2
+      dest: /var/service/jenkins/run
+      owner: jenkins
+      mode: 0755
+
+  - name: set up runit - enable runit
+    lineinfile:
+      path: /etc/rc.conf
+      line: runsvdir_enable=yes
+
+  - name: set up runit - start runit service
+    service:
+      name: runsvdir
+      state: started
+
+  - name: set up runit - start jenkins service
+    command: sv start jenkins
