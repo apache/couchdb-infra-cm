@@ -1,0 +1,9 @@
+[ci:children]
+intel
+arm
+
+[intel]
+130.61.62.183
+
+[arm]
+130.61.143.37
