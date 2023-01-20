@@ -1,0 +1,108 @@
+---
+- hosts: ci
+  remote_user: administrator
+  tasks:
+
+  - name: install tmux
+    community.general.homebrew:
+      name: tmux
+      state: present
+
+  - name: install emacs
+    community.general.homebrew:
+      name: emacs
+      state: present
+
+  - name: install erlang 25
+    community.general.homebrew:
+      name: 'erlang@25'
+      state: present
+
+  - name: install elixir
+    community.general.homebrew:
+      name: elixir
+      state: present
+
+  - name: install node
+    community.general.homebrew:
+      name: node
+      state: present
+
+  - name: install python
+    community.general.homebrew:
+      name: python
+      state: present
+
+  - name: install spidermonkey
+    community.general.homebrew:
+      name: spidermonkey
+      state: present
+
+  - name: install help2man
+    community.general.homebrew:
+      name: help2man
+      state: present
+
+  - name: install openjdk 11
+    community.general.homebrew:
+      name: 'openjdk@11'
+      state: present
+
+  - name: brew link openjdk force
+    command: /opt/homebrew/bin/brew link openjdk@11 --force
+    args:
+      creates: /opt/homebrew/bin/java
+
+  - name: install sphinx
+    ansible.builtin.pip:
+      name: sphinx
+
+  - name: install docutils
+    ansible.builtin.pip:
+      name: docutils
+
+  - name: install pygments
+    ansible.builtin.pip:
+      name: pygments
+
+  - name: install sphinx_rtd_theme
+    ansible.builtin.pip:
+      name: sphinx_rtd_theme
+
+  - name: create jenkins user
+    become: true
+    user:
+      name: jenkins2
+      group: everyone
+      shell: /bin/zsh
+      password: "{{ jenkins_pw }}"
+      system: true
+
+  - name: create LaunchDaemons dir
+    file:
+      state: directory
+      dest: /Users/administrator/Library/LaunchDaemons
+      owner: administrator
+
+  - name: upload launchd config
+    copy:
+      src: ./files/org.apache.couchdb.mac.arm.ci.plist
+      dest: /Library/LaunchDaemons/org.apache.couchdb.mac.arm.ci.plist
+    notify: restart launchd service
+
+  - name: bootstrap the launchd service
+    become: true
+    command: launchctl bootstrap system /Library/LaunchDaemons/org.apache.couchdb.mac.arm.ci.plist
+
+  - name: enable the launchd service - might be rundant
+    become: true
+    command: launchctl enable system/org.apache.couchdb.mac.arm.ci
+
+  - name: re/start the launchd service
+    become: true
+    command: launchctl kickstart -kp system/org.apache.couchdb.mac.arm.ci
+
+  handlers:
+    - name: restart launchd service
+      become: true
+      command: launchctl kickstart -kp system/org.apache.couchdb.mac.arm.ci

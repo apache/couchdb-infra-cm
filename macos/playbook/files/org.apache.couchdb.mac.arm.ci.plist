@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+  <dict>
+
+    <key>Label</key>
+    <string>org.apache.couchdb.mac.arm.ci</string>
+
+    <key>ProgramArguments</key>
+    <array>
+      <string>/Users/jenkins2/run.sh</string>
+    </array>
+
+    <key>EnvironmentVariables</key>
+    <dict></dict>
+
+    <key>RunAtLoad</key>
+    <true/>
+
+    <key>KeepAlive</key>
+    <true/>
+
+    <key>UserName</key>
+    <string>jenkins2</string>
+
+    <key>WorkingDirectory</key>
+    <string>/Users/jenkins2</string>
+
+    <key>StandardErrorPath</key>
+    <string>/Users/jenkins2/jenkins-launchd.stderr</string>
+
+    <key>StandardOutPath</key>
+    <string>/Users/jenkins2/jenkins-launchd.stdout</string>
+
+  </dict>
+</plist>
