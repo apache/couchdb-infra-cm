@@ -1,6 +1,6 @@
-- name: Allow CouchDB Infra access on Ubuntu
+- name: Allow CouchDB Infra access
   authorized_key:
-    user: ubuntu
+    user: "{{ ansible_user_id }}"
     state: present
     key: "{{ item }}"
   with_items:
@@ -8,19 +8,6 @@
     - https://github.com/kocolosk.keys
     - https://github.com/nickva.keys
     - https://github.com/wohali.keys
-  when: ansible_distribution == "Ubuntu"
-
-- name: Allow CouchDB Infra access on Debian
-  authorized_key:
-    user: root
-    state: present
-    key: "{{ item }}"
-  with_items:
-    - https://github.com/davisp.keys
-    - https://github.com/kocolosk.keys
-    - https://github.com/nickva.keys
-    - https://github.com/wohali.keys
-  when: ansible_distribution == "Debian"
 
 - name: Lock root account
   become: yes

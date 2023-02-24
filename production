@@ -18,6 +18,7 @@ all:
             arch: amd64
             num_cpus: 2
             ram: 4
+          user: root
     ci_agents:
       hosts:
         couchdb-worker-x86-64-debian-dal-1-01:
@@ -38,6 +39,7 @@ all:
             arch: amd64
             num_cpus: 4
             ram: 8
+          user: root
         couchdb-worker-x86-64-debian-dal-1-02:
           instance:
             created_at: '2020-12-04T17:37:20Z'
@@ -56,6 +58,7 @@ all:
             arch: amd64
             num_cpus: 4
             ram: 8
+          user: root
         couchdb-worker-x86-64-debian-dal-1-03:
           instance:
             created_at: '2020-12-04T17:36:58Z'
@@ -74,6 +77,7 @@ all:
             arch: amd64
             num_cpus: 4
             ram: 8
+          user: root
         couchdb-worker-x86-64-debian-dal-1-04:
           instance:
             created_at: '2020-12-04T17:36:37Z'
@@ -92,6 +96,7 @@ all:
             arch: amd64
             num_cpus: 4
             ram: 8
+          user: root
         couchdb-worker-x86-64-debian-dal-1-05:
           instance:
             created_at: '2020-12-04T17:24:05Z'
@@ -110,6 +115,7 @@ all:
             arch: amd64
             num_cpus: 4
             ram: 8
+          user: root
         couchdb-worker-x86-64-debian-dal-1-06:
           instance:
             created_at: '2020-12-04T17:23:32Z'
@@ -128,6 +134,7 @@ all:
             arch: amd64
             num_cpus: 4
             ram: 8
+          user: root
         couchdb-worker-x86-64-debian-dal-1-07:
           instance:
             created_at: '2020-12-04T17:22:57Z'
@@ -146,6 +153,7 @@ all:
             arch: amd64
             num_cpus: 4
             ram: 8
+          user: root
         couchdb-worker-x86-64-debian-dal-1-08:
           instance:
             created_at: '2021-03-08T21:13:51Z'
@@ -164,6 +172,7 @@ all:
             arch: amd64
             num_cpus: 4
             ram: 8
+          user: root
         ubuntu:
           instance:
             id: ubuntu
@@ -177,3 +186,18 @@ all:
             arch: ppc64le
             num_cpus: 8
             ram: 16
+          user: ubuntu
+        zlinux:
+          instance:
+            id: zlinux
+            name: zlinux
+            subnet: null
+          ip_addrs:
+            bastion_host: null
+            bastion_ip: null
+            public: 148.100.85.51
+          system:
+            arch: s390x
+            num_cpus: 8
+            ram: 16
+          user: linux1

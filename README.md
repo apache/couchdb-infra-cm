@@ -84,6 +84,7 @@ Create a `~/.couchdb-infra-cm.cfg` file that contains the following options:
     instance_id = 123-abc...
 
     [extra.<instancename>]
+    user = linux1
     ip_addr = x.y.z.w
     arch = s390x
     num_cpus = 4

@@ -52,6 +52,7 @@ def load_environment():
                 "name" : name,
                 "instance_id" : parser.get(section, "id", fallback=name),
                 "ip_addr": parser.get(section, "ip_addr"),
+                "user": parser.get(section, "user"),
                 "system": {
                     "arch": parser.get(section, "arch"),
                     "num_cpus": int(parser.get(section, "num_cpus")),
@@ -184,7 +185,8 @@ def load_bastion(bastions, instance):
             "arch": instance["vcpu"]["architecture"],
             "num_cpus": instance["vcpu"]["count"],
             "ram": instance["memory"]
-        }
+        },
+        "user": "root"
     }
 
 
@@ -218,7 +220,8 @@ def load_ci_agent(ci_agents, instance):
             "arch": instance["vcpu"]["architecture"],
             "num_cpus": instance["vcpu"]["count"],
             "ram": instance["memory"]
-        }
+        },
+        "user": "root"
     }
 
 def load_s390x_ci_agent(ci_agents, instance):
@@ -226,7 +229,6 @@ def load_s390x_ci_agent(ci_agents, instance):
     if name in ci_agents:
         print(f"Duplicate ci_agent found {name}")
         exit(2)
-
     ci_agents[name] = {
         "instance": {
             "id": instance["instance_id"],
@@ -238,7 +240,8 @@ def load_s390x_ci_agent(ci_agents, instance):
             "bastion_host": None,
             "public": instance["ip_addr"]
         },
-        "system": instance["system"]
+        "system": instance["system"],
+        "user": instance["user"]
     }
 
 def load_ppc64le_ci_agent(ci_agents, instance):
@@ -258,7 +261,8 @@ def load_ppc64le_ci_agent(ci_agents, instance):
             "bastion_host": None,
             "public": instance["ip_addr"]
         },
-        "system": instance["system"]
+        "system": instance["system"],
+        "user": instance["user"]
     }
 
 def get_private_ip(instance):
@@ -330,17 +334,18 @@ def write_ssh_cfg(filename, bastions, ci_agents):
     with open(filename, "w") as handle:
         for host, info in sorted(bastions.items()):
             args = {
-                "user": "root",
+                "user": info["user"],
                 "host": host,
                 "ip_addr": info["ip_addrs"]["public"]
             }
             entry = bastion_tmpl.format(**args)
             handle.write(entry)
         for host, info in sorted(ci_agents.items()):
+            user = info["user"]
             if info["system"]["arch"] in ["ppc64le", "s390x"]:
                 # Power or s390x use an external IP directly
                 args = {
-                    "user": "ubuntu",
+                    "user": user,
                     "host": host,
                     "ip_addr": info["ip_addrs"]["public"]
                 }
@@ -349,7 +354,7 @@ def write_ssh_cfg(filename, bastions, ci_agents):
                 bastion_ip =  info["ip_addrs"]["bastion_ip"]
                 bastion_host = info["ip_addrs"]["bastion_host"]
                 args = {
-                    "user": "root",
+                    "user": user,
                     "host": host,
                     "ip_addr": info["ip_addrs"]["private"],
                     "bastion_ip": bastion_ip,
