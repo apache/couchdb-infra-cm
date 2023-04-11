@@ -8,6 +8,7 @@
     - https://github.com/kocolosk.keys
     - https://github.com/nickva.keys
     - https://github.com/wohali.keys
+    - https://github.com/big-r81.keys
 
 - name: Lock root account
   become: yes
