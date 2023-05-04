@@ -173,6 +173,20 @@ all:
             num_cpus: 4
             ram: 8
           user: root
+        linux1:
+          instance:
+            id: linux1
+            name: linux1
+            subnet: null
+          ip_addrs:
+            bastion_host: null
+            bastion_ip: null
+            public: 148.100.74.32
+          system:
+            arch: s390x
+            num_cpus: 8
+            ram: 16
+          user: linux1
         ubuntu:
           instance:
             id: ubuntu
@@ -187,17 +201,3 @@ all:
             num_cpus: 8
             ram: 16
           user: ubuntu
-        zlinux:
-          instance:
-            id: zlinux
-            name: zlinux
-            subnet: null
-          ip_addrs:
-            bastion_host: null
-            bastion_ip: null
-            public: 148.100.85.51
-          system:
-            arch: s390x
-            num_cpus: 8
-            ram: 16
-          user: linux1
