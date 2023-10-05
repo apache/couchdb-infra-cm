@@ -148,3 +148,22 @@
     group: jenkins
     mode: u=rwX,g=rX,o=rX
 
+- name: Setup Pip cache directory
+  become: yes
+  file:
+    path: /home/jenkins/.cache/pip
+    state: directory
+    owner: jenkins
+    group: jenkins
+    mode: u=rwX,g=rX,o=rX
+    recurse: true
+
+- name: Setup Node cache directory
+  become: yes
+  file:
+    path: /home/jenkins/.npm
+    state: directory
+    owner: jenkins
+    group: jenkins
+    mode: u=rwX,g=rX,o=rX
+
