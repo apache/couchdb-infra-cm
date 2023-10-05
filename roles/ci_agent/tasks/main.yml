@@ -129,3 +129,22 @@
     src: /etc/sv/jenkins
     dest: /etc/service/jenkins
     state: link
+
+- name: Setup Gradle cache directory
+  become: yes
+  file:
+    path: /home/jenkins/.gradle
+    state: directory
+    owner: jenkins
+    group: jenkins
+    mode: u=rwX,g=rX,o=rX
+
+- name: Setup Hex cache directory
+  become: yes
+  file:
+    path: /home/jenkins/.hex
+    state: directory
+    owner: jenkins
+    group: jenkins
+    mode: u=rwX,g=rX,o=rX
+
