@@ -148,6 +148,15 @@
     group: jenkins
     mode: u=rwX,g=rX,o=rX
 
+- name: Setup Mix home directory
+  become: yes
+  file:
+    path: /home/jenkins/.mix
+    state: directory
+    owner: jenkins
+    group: jenkins
+    mode: u=rwX,g=rX,o=rX
+
 - name: Setup Pip cache directory
   become: yes
   file:
