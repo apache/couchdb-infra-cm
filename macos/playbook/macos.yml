@@ -48,6 +48,26 @@
       name: 'openjdk@11'
       state: present
 
+  - name: install OpenJDK 8
+    block:
+      - name: fetch distribution
+        get_url:
+          url: https://cdn.azul.com/zulu/bin/zulu8.74.0.17-ca-jre8.0.392-macosx_aarch64.tar.gz
+          dest: /tmp/openjdk8.tgz
+
+      - name: unpack distribution
+        unarchive:
+          src: /tmp/openjdk8.tgz
+          dest: /opt/java/openjdk8
+          extra_opts:
+            - --strip-component 1
+        creates: /opt/java/openjdk8
+
+      - name: remove distribution
+        file:
+          dest: /tmp/openjdk8.tgz
+          state: absent
+
   - name: brew link openjdk force
     command: /opt/homebrew/bin/brew link openjdk@11 --force
     args:
@@ -77,6 +97,11 @@
       shell: /bin/zsh
       password: "{{ jenkins_pw }}"
       system: true
+
+  - name: configure OpenJDK 8 for Clouseau
+    lineinfile:
+      path: /Users/jenkins2/.zshenv
+      line: export CLOUSEAU_JAVA_HOME=/opt/java/openjdk8
 
   - name: create LaunchDaemons dir
     file:
