@@ -106,3 +106,7 @@
     - name: restart launchd service
       become: true
       command: launchctl kickstart -kp system/org.apache.couchdb.mac.arm.ci
+
+# TODO:
+  # upload run.sh
+  # upload jenkins secret

@@ -29,6 +29,11 @@
       name: node
       state: present
 
+  - name: install npm
+    ansible.builtin.package:
+      name: npm
+      state: present
+
   - name: install py39-pip
     ansible.builtin.package:
       name: py39-pip
@@ -52,6 +57,26 @@
   - name: install runit
     ansible.builtin.package:
       name: runit
+      state: present
+
+  - name: install htop
+    ansible.builtin.package:
+      name: htop
+      state: present
+
+  - name: install gmake
+    ansible.builtin.package:
+      name: gmake
+      state: present
+
+  - name: install git
+    ansible.builtin.package:
+      name: git
+      state: present
+
+  - name: install icu
+    ansible.builtin.package:
+      name: icu
       state: present
 
   - name: install sphinx
