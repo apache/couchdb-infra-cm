@@ -43,10 +43,43 @@
       name: help2man
       state: present
 
+  - name: install gnu tar
+    community.general.homebrew:
+      name: gnu-tar
+      state: present
+
   - name: install openjdk 11
     community.general.homebrew:
       name: 'openjdk@11'
       state: present
+
+  - name: install openjdk 8
+    get_url:
+      url: https://cdn.azul.com/zulu/bin/zulu8.74.0.17-ca-jre8.0.392-macosx_aarch64.tar.gz
+      dest: /tmp/openjdk8.tgz
+
+  - name: create openjdk 8 install dir
+    become: true
+    file:
+      path: /opt/java/openjdk8
+      state: directory
+      recurse: true
+      owner: administrator
+
+  - name: unpack distribution
+    unarchive:
+      src: /tmp/openjdk8.tgz
+      dest: /opt/java/openjdk8
+      remote_src: true
+      extra_opts:
+      - "--strip-components=1"
+    environment:
+      PATH: "/opt/homebrew/opt/gnu-tar/libexec/gnubin:{{ ansible_env.PATH }}"
+
+  - name: remove distribution
+    file:
+      dest: /tmp/openjdk8.tgz
+      state: absent
 
   - name: brew link openjdk force
     command: /opt/homebrew/bin/brew link openjdk@11 --force
@@ -78,13 +111,24 @@
       password: "{{ jenkins_pw }}"
       system: true
 
+  - name: configure OpenJDK 8 for Clouseau
+    become: true
+    lineinfile:
+      path: /Users/jenkins2/.zshenv
+      line: export CLOUSEAU_JAVA_HOME=/opt/java/openjdk8
+      state: present
+      create: true
+      owner: jenkins2
+
   - name: create LaunchDaemons dir
+    become: true
     file:
       state: directory
       dest: /Users/administrator/Library/LaunchDaemons
       owner: administrator
 
   - name: upload launchd config
+    become: true
     copy:
       src: ./files/org.apache.couchdb.mac.arm.ci.plist
       dest: /Library/LaunchDaemons/org.apache.couchdb.mac.arm.ci.plist
@@ -93,6 +137,7 @@
   - name: bootstrap the launchd service
     become: true
     command: launchctl bootstrap system /Library/LaunchDaemons/org.apache.couchdb.mac.arm.ci.plist
+    ignore_errors: true
 
   - name: enable the launchd service - might be rundant
     become: true
