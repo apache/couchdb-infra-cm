@@ -11,14 +11,14 @@
   shell: /sbin/sysctl --load /etc/sysctl.d/50-ci-agent.conf
   when: ciagentsysctl.changed
 
-- name: Install Java 11
+- name: Install Java
   become: yes
   apt:
     name: "{{ packages }}"
     state: latest
   vars:
     packages:
-      - openjdk-11-jre-headless
+      - openjdk-17-jre-headless
 
 - name: Setup Docker APT repository
   become: yes
