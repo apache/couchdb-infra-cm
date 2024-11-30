@@ -54,6 +54,11 @@
       name: openjdk11-jre
       state: present
 
+  - name: install OpenJDK 8
+    ansible.builtin.package:
+      name: openjdk8-jre
+      state: present
+
   - name: install runit
     ansible.builtin.package:
       name: runit
@@ -99,6 +104,18 @@
     user:
       name: jenkins
       system: true
+
+  - name: configure OpenJDK 8 for Clouseau
+    block:
+      - name: configure csh
+        lineinfile:
+          path: /etc/csh.cshrc
+          line: setenv CLOUSEAU_JAVA_HOME /usr/local/openjdk8
+
+      - name: configure sh
+        lineinfile:
+          path: /etc/profile
+          line: export CLOUSEAU_JAVA_HOME=/usr/local/openjdk8
 
   - name: set up runit - create service dir
     file:
