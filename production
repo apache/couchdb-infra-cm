@@ -2,23 +2,23 @@ all:
   children:
     bastions:
       hosts:
-        couchdb-bastion-x86-64-debian-dal-1-01:
+        couchdb-bastion-x86-64-ubuntu-dal-1-01:
           instance:
-            created_at: '2020-12-04T17:51:31Z'
-            id: 0717_27810451-1a4b-4f12-8fcb-47375063cf28
-            name: couchdb-bastion-x86-64-debian-dal-1-01
+            created_at: '2024-12-03T06:27:13Z'
+            id: 0717_d4657905-4dcd-488f-9305-a7e1722ee2bf
+            name: couchdb-bastion-x86-64-ubuntu-dal-1-01
             profile: cx2-2x4
-            subnet: couchdb-ci-farm-dal-1
+            subnet: couchdb-ci-farm-dal-1-subnet
             vpc: couchdb-ci-farm-vpc
             zone: us-south-1
           ip_addrs:
-            private: 10.240.0.17
-            public: 169.48.153.153
+            private: 10.240.0.13
+            public: 52.118.184.106
           system:
             arch: amd64
             num_cpus: 2
             ram: 4
-          user: root
+          user: ubuntu
     ci_agents:
       hosts:
         couchdb-worker-x86-64-ubuntu-dal-1-01:
@@ -27,152 +27,152 @@ all:
             id: 0717_939c6c62-051d-4b3b-9cdd-ffbd0b9cc141
             name: couchdb-worker-x86-64-ubuntu-dal-1-01
             profile: cx2-4x8
-            subnet: couchdb-ci-farm-dal-1
+            subnet: couchdb-ci-farm-dal-1-subnet
             vpc: couchdb-ci-farm-vpc
             zone: us-south-1
           ip_addrs:
-            bastion_host: couchdb-bastion-x86-64-debian-dal-1-01
-            bastion_ip: 169.48.153.153
+            bastion_host: couchdb-bastion-x86-64-ubuntu-dal-1-01
+            bastion_ip: 52.118.184.106
             private: 10.240.0.4
             public: null
           system:
             arch: amd64
             num_cpus: 4
             ram: 8
-          user: root
+          user: ubuntu
         couchdb-worker-x86-64-ubuntu-dal-1-02:
           instance:
             created_at: '2024-05-21T04:08:56Z'
             id: 0717_36222e4a-1bb6-4344-8906-decfc02e425a
             name: couchdb-worker-x86-64-ubuntu-dal-1-02
             profile: cx2-4x8
-            subnet: couchdb-ci-farm-dal-1
+            subnet: couchdb-ci-farm-dal-1-subnet
             vpc: couchdb-ci-farm-vpc
             zone: us-south-1
           ip_addrs:
-            bastion_host: couchdb-bastion-x86-64-debian-dal-1-01
-            bastion_ip: 169.48.153.153
+            bastion_host: couchdb-bastion-x86-64-ubuntu-dal-1-01
+            bastion_ip: 52.118.184.106
             private: 10.240.0.5
             public: null
           system:
             arch: amd64
             num_cpus: 4
             ram: 8
-          user: root
+          user: ubuntu
         couchdb-worker-x86-64-ubuntu-dal-1-03:
           instance:
             created_at: '2024-05-21T04:10:29Z'
             id: 0717_5dfec548-5cde-4c10-8da9-e988c6aa0250
             name: couchdb-worker-x86-64-ubuntu-dal-1-03
             profile: cx2-4x8
-            subnet: couchdb-ci-farm-dal-1
+            subnet: couchdb-ci-farm-dal-1-subnet
             vpc: couchdb-ci-farm-vpc
             zone: us-south-1
           ip_addrs:
-            bastion_host: couchdb-bastion-x86-64-debian-dal-1-01
-            bastion_ip: 169.48.153.153
+            bastion_host: couchdb-bastion-x86-64-ubuntu-dal-1-01
+            bastion_ip: 52.118.184.106
             private: 10.240.0.6
             public: null
           system:
             arch: amd64
             num_cpus: 4
             ram: 8
-          user: root
+          user: ubuntu
         couchdb-worker-x86-64-ubuntu-dal-1-04:
           instance:
             created_at: '2024-05-21T04:12:24Z'
             id: 0717_4b23ed65-5920-465a-9751-4ff0c8a72e7a
             name: couchdb-worker-x86-64-ubuntu-dal-1-04
             profile: cx2-4x8
-            subnet: couchdb-ci-farm-dal-1
+            subnet: couchdb-ci-farm-dal-1-subnet
             vpc: couchdb-ci-farm-vpc
             zone: us-south-1
           ip_addrs:
-            bastion_host: couchdb-bastion-x86-64-debian-dal-1-01
-            bastion_ip: 169.48.153.153
+            bastion_host: couchdb-bastion-x86-64-ubuntu-dal-1-01
+            bastion_ip: 52.118.184.106
             private: 10.240.0.7
             public: null
           system:
             arch: amd64
             num_cpus: 4
             ram: 8
-          user: root
+          user: ubuntu
         couchdb-worker-x86-64-ubuntu-dal-1-05:
           instance:
             created_at: '2024-05-21T04:15:36Z'
             id: 0717_c2cce794-3761-4bf3-b0fd-a7b6baee89bf
             name: couchdb-worker-x86-64-ubuntu-dal-1-05
             profile: cx2-4x8
-            subnet: couchdb-ci-farm-dal-1
+            subnet: couchdb-ci-farm-dal-1-subnet
             vpc: couchdb-ci-farm-vpc
             zone: us-south-1
           ip_addrs:
-            bastion_host: couchdb-bastion-x86-64-debian-dal-1-01
-            bastion_ip: 169.48.153.153
+            bastion_host: couchdb-bastion-x86-64-ubuntu-dal-1-01
+            bastion_ip: 52.118.184.106
             private: 10.240.0.8
             public: null
           system:
             arch: amd64
             num_cpus: 4
             ram: 8
-          user: root
+          user: ubuntu
         couchdb-worker-x86-64-ubuntu-dal-1-06:
           instance:
             created_at: '2024-05-21T04:16:48Z'
             id: 0717_af4b89d8-8e86-43f7-b831-4e860d6d50ac
             name: couchdb-worker-x86-64-ubuntu-dal-1-06
             profile: cx2-4x8
-            subnet: couchdb-ci-farm-dal-1
+            subnet: couchdb-ci-farm-dal-1-subnet
             vpc: couchdb-ci-farm-vpc
             zone: us-south-1
           ip_addrs:
-            bastion_host: couchdb-bastion-x86-64-debian-dal-1-01
-            bastion_ip: 169.48.153.153
+            bastion_host: couchdb-bastion-x86-64-ubuntu-dal-1-01
+            bastion_ip: 52.118.184.106
             private: 10.240.0.9
             public: null
           system:
             arch: amd64
             num_cpus: 4
             ram: 8
-          user: root
+          user: ubuntu
         couchdb-worker-x86-64-ubuntu-dal-1-07:
           instance:
             created_at: '2024-05-21T04:17:53Z'
             id: 0717_b5a27e15-4c40-4144-9a0c-2fb8472fcdae
             name: couchdb-worker-x86-64-ubuntu-dal-1-07
             profile: cx2-4x8
-            subnet: couchdb-ci-farm-dal-1
+            subnet: couchdb-ci-farm-dal-1-subnet
             vpc: couchdb-ci-farm-vpc
             zone: us-south-1
           ip_addrs:
-            bastion_host: couchdb-bastion-x86-64-debian-dal-1-01
-            bastion_ip: 169.48.153.153
+            bastion_host: couchdb-bastion-x86-64-ubuntu-dal-1-01
+            bastion_ip: 52.118.184.106
             private: 10.240.0.10
             public: null
           system:
             arch: amd64
             num_cpus: 4
             ram: 8
-          user: root
+          user: ubuntu
         couchdb-worker-x86-64-ubuntu-dal-1-08:
           instance:
             created_at: '2024-05-21T04:19:16Z'
             id: 0717_8574a26c-2374-489f-955a-a746ead09a57
             name: couchdb-worker-x86-64-ubuntu-dal-1-08
             profile: cx2-4x8
-            subnet: couchdb-ci-farm-dal-1
+            subnet: couchdb-ci-farm-dal-1-subnet
             vpc: couchdb-ci-farm-vpc
             zone: us-south-1
           ip_addrs:
-            bastion_host: couchdb-bastion-x86-64-debian-dal-1-01
-            bastion_ip: 169.48.153.153
+            bastion_host: couchdb-bastion-x86-64-ubuntu-dal-1-01
+            bastion_ip: 52.118.184.106
             private: 10.240.0.11
             public: null
           system:
             arch: amd64
             num_cpus: 4
             ram: 8
-          user: root
+          user: ubuntu
         linux1:
           instance:
             id: linux1
