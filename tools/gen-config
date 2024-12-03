@@ -186,7 +186,7 @@ def load_bastion(bastions, instance):
             "num_cpus": instance["vcpu"]["count"],
             "ram": instance["memory"]
         },
-        "user": "root"
+        "user": "ubuntu"
     }
 
 
@@ -221,7 +221,7 @@ def load_ci_agent(ci_agents, instance):
             "num_cpus": instance["vcpu"]["count"],
             "ram": instance["memory"]
         },
-        "user": "root"
+        "user": "ubuntu"
     }
 
 def load_s390x_ci_agent(ci_agents, instance):
@@ -328,7 +328,7 @@ def write_ssh_cfg(filename, bastions, ci_agents):
           Hostname {ip_addr}
           User {user}
           StrictHostKeyChecking no
-          ProxyCommand /usr/bin/ssh -W %h:%p -q root@{bastion_host}
+          ProxyCommand /usr/bin/ssh -W %h:%p -q ubuntu@{bastion_host}
 
         """)
     with open(filename, "w") as handle:
