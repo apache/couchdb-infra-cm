@@ -17,6 +17,15 @@
     name: root
     password_lock: true
 
+- name: Disable root login vis ssh
+  become: yes
+  lineinfile:
+    dest: /etc/ssh/sshd_config
+    regexp: '^(#\s*)?#PermitRootLogin'
+    line: "PermitRootLogin no"
+    state: present
+  notify: restart sshd
+
 - name: Disable password authentication
   become: yes
   lineinfile:
@@ -74,3 +83,4 @@
       - vim
       - emacs-nox
       - wget
+      - ripgrep
