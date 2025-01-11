@@ -38,8 +38,8 @@
     name: "{{ packages }}"
   vars:
     packages:
-      - containerd.io
       - docker-ce
+      - docker-buildx-plugin
 
 - name: Install Docker CLI Package on Debian or Ubuntu
   become: yes
