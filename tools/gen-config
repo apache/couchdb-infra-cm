@@ -115,13 +115,12 @@ def init():
 
 def list_instances():
     for env in ENV:
-        if env != "power":
-            yield from list_x86_instances(env)
-    for inst  in EXTRA.values():
+        yield from list_ibmcloud_instances(env)
+    for inst in EXTRA.values():
         yield inst
 
 
-def list_x86_instances(env):
+def list_ibmcloud_instances(env):
     url = ENV[env]["api_url"] + "/instances"
     sess = SESS[env]
     while url:
@@ -224,32 +223,11 @@ def load_ci_agent(ci_agents, instance):
         "user": "ubuntu"
     }
 
-def load_s390x_ci_agent(ci_agents, instance):
+def load_extra_ci_agent(ci_agents, instance):
     name = instance["name"]
     if name in ci_agents:
         print(f"Duplicate ci_agent found {name}")
         exit(2)
-    ci_agents[name] = {
-        "instance": {
-            "id": instance["instance_id"],
-            "name" : instance["name"],
-            "subnet": None
-        },
-        "ip_addrs": {
-            "bastion_ip": None,
-            "bastion_host": None,
-            "public": instance["ip_addr"]
-        },
-        "system": instance["system"],
-        "user": instance["user"]
-    }
-
-def load_ppc64le_ci_agent(ci_agents, instance):
-    name = instance["name"]
-    if name in ci_agents:
-        print(f"Duplicate ci_agent found {name}")
-        exit(2)
-
     ci_agents[name] = {
         "instance": {
             "id": instance["instance_id"],
@@ -285,8 +263,8 @@ def assign_bastions(bastions, ci_agents):
         assert subnet not in subnets
         subnets[subnet] = (ip_addr, host)
     for (host, ci_agent) in ci_agents.items():
-        if ci_agent["system"]["arch"] in ["ppc64le", "s390x"]:
-            # Power & s390x an external IP without bastions
+        if host in EXTRA:
+            # external ones don't have bastions currently
             continue
         subnet = ci_agent["instance"]["subnet"]
         assert subnet in subnets
@@ -342,8 +320,8 @@ def write_ssh_cfg(filename, bastions, ci_agents):
             handle.write(entry)
         for host, info in sorted(ci_agents.items()):
             user = info["user"]
-            if info["system"]["arch"] in ["ppc64le", "s390x"]:
-                # Power or s390x use an external IP directly
+            if host in EXTRA:
+                # extra CI agent use an external IP directly
                 args = {
                     "user": user,
                     "host": host,
@@ -396,10 +374,8 @@ def main():
             load_bastion(bastions, instance)
         elif instance["name"].startswith("couchdb-worker"):
             load_ci_agent(ci_agents, instance)
-        elif instance["system"]["arch"] == "ppc64le":
-            load_ppc64le_ci_agent(ci_agents, instance)
-        elif instance["system"]["arch"] == "s390x":
-            load_s390x_ci_agent(ci_agents, instance)
+        elif instance["name"] in EXTRA:
+            load_extra_ci_agent(ci_agents, instance)
 
     assign_bastions(bastions, ci_agents)
 
