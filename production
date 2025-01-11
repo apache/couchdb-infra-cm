@@ -201,3 +201,17 @@ all:
             num_cpus: 8
             ram: 16
           user: ubuntu
+        ubuntu-fsn-1-09:
+          instance:
+            id: ubuntu-fsn-1-09
+            name: ubuntu-fsn-1-09
+            subnet: null
+          ip_addrs:
+            bastion_host: null
+            bastion_ip: null
+            public: 2a01:4f8:10a:eb::2
+          system:
+            arch: x86_64
+            num_cpus: 8
+            ram: 64
+          user: root
