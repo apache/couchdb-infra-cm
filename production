@@ -209,7 +209,7 @@ all:
           ip_addrs:
             bastion_host: null
             bastion_ip: null
-            public: 2a01:4f8:10a:eb::2
+            public: 88.99.24.185
           system:
             arch: x86_64
             num_cpus: 8
