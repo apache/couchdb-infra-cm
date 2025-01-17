@@ -55,7 +55,7 @@
   vars:
     packages:
       - binfmt-support
-      - qemu
+      - qemu-utils
       - qemu-user-static
 
 - name: Install kill-old-docker.sh
