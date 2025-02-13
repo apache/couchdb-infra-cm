@@ -201,6 +201,20 @@ all:
             num_cpus: 8
             ram: 16
           user: ubuntu
+        ubuntu-fra1-10:
+          instance:
+            id: ubuntu-fra1-10
+            name: ubuntu-fra1-10
+            subnet: null
+          ip_addrs:
+            bastion_host: null
+            bastion_ip: null
+            public: 67.207.77.129
+          system:
+            arch: x86_64
+            num_cpus: 4
+            ram: 8
+          user: root
         ubuntu-fsn-1-09:
           instance:
             id: ubuntu-fsn-1-09

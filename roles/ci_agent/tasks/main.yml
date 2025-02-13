@@ -36,6 +36,7 @@
   become: yes
   apt:
     name: "{{ packages }}"
+    update_cache: yes
   vars:
     packages:
       - docker-ce
