@@ -229,3 +229,31 @@ all:
             num_cpus: 8
             ram: 64
           user: root
+        ubuntu-nc-arm64-12:
+          instance:
+            id: ubuntu-nc-arm64-12
+            name: ubuntu-nc-arm64-12
+            subnet: null
+          ip_addrs:
+            bastion_host: null
+            bastion_ip: null
+            public: 89.58.42.161
+          system:
+            arch: arm64
+            num_cpus: 4
+            ram: 8
+          user: root
+        ubuntu-nc-x86-11:
+          instance:
+            id: ubuntu-nc-x86-11
+            name: ubuntu-nc-x86-11
+            subnet: null
+          ip_addrs:
+            bastion_host: null
+            bastion_ip: null
+            public: 152.53.129.244
+          system:
+            arch: x86_64
+            num_cpus: 4
+            ram: 8
+          user: root
