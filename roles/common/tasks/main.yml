@@ -17,12 +17,12 @@
     name: root
     password_lock: true
 
-- name: Disable root login vis ssh
+- name: Disable root login with a password
   become: yes
   lineinfile:
     dest: /etc/ssh/sshd_config
     regexp: '^(#\s*)?#PermitRootLogin'
-    line: "PermitRootLogin no"
+    line: "PermitRootLogin prohibit-password"
     state: present
   notify: restart sshd
 
