@@ -98,11 +98,6 @@
       password: "{{ jenkins_pw }}"
       system: true
 
-  - name: configure OpenJDK 8 for Clouseau
-    lineinfile:
-      path: /Users/jenkins2/.zshenv
-      line: export CLOUSEAU_JAVA_HOME=/opt/java/openjdk8
-
   - name: create LaunchDaemons dir
     file:
       state: directory
