@@ -18,7 +18,7 @@
     state: latest
   vars:
     packages:
-      - openjdk-17-jre-headless
+      - openjdk-21-jre-headless
 
 - name: Setup Docker APT repository
   become: yes
