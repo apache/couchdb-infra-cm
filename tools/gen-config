@@ -53,10 +53,12 @@ def load_environment():
                 "instance_id" : parser.get(section, "id", fallback=name),
                 "ip_addr": parser.get(section, "ip_addr"),
                 "user": parser.get(section, "user"),
+                "proxyjump": parser.get(section, "proxyjump", fallback = None),
+                "is_proxy": False,
                 "system": {
-                    "arch": parser.get(section, "arch"),
-                    "num_cpus": int(parser.get(section, "num_cpus")),
-                    "ram": int(parser.get(section, "ram"))
+                    "arch": parser.get(section, "arch", fallback = None),
+                    "num_cpus": int(parser.get(section, "num_cpus", fallback = 0)),
+                    "ram": int(parser.get(section, "ram", fallback = 0))
                 }
             }
 
@@ -86,7 +88,13 @@ def load_environment():
             "instance_id" : parser.get(section, "instance_id",
                                        fallback=None)
         }
-
+    for k in EXTRA:
+        proxy = EXTRA[k]["proxyjump"]
+        if proxy:
+            if proxy not in EXTRA:
+                print(f"Proxy jump host {proxy} not found in extras")
+                exit(1)
+            EXTRA[proxy]["is_proxy"] = True
 
 def load_iam_tokens():
     for env in ENV:
@@ -167,6 +175,7 @@ def load_bastion(bastions, instance):
     ip_addr = floating_ips[0]["address"]
 
     bastions[name] = {
+        "extra": False,
         "instance": {
             "id": instance["id"],
             "name": instance["name"],
@@ -188,6 +197,22 @@ def load_bastion(bastions, instance):
         "user": "ubuntu"
     }
 
+def load_extra_bastion(bastions, instance):
+    name = instance["name"]
+    if name in bastions:
+        print(f"Duplicate bastion found {name}")
+        exit(2)
+
+    bastions[name] = {
+        "extra": True,
+        "instance": {
+            "name": instance["name"]
+        },
+        "ip_addrs": {
+            "public": instance["ip_addr"]
+        },
+        "user": instance["user"]
+   }
 
 def load_ci_agent(ci_agents, instance):
     if instance["status"] != "running":
@@ -258,6 +283,8 @@ def get_private_ip(instance):
 def assign_bastions(bastions, ci_agents):
     subnets = {}
     for (host, bastion) in bastions.items():
+        if bastion["extra"]:
+            continue
         subnet = bastion["instance"]["subnet"]
         ip_addr = bastion["ip_addrs"]["public"]
         assert subnet not in subnets
@@ -301,12 +328,32 @@ def write_ssh_cfg(filename, bastions, ci_agents):
           ControlPersist 30m
 
         """)
+    extra_ci_agent_tmpl = textwrap.dedent("""\
+        Host {host}
+          Hostname {ip_addr}
+          User {user}
+          ForwardAgent yes
+          StrictHostKeyChecking no
+          ControlMaster auto
+          ControlPath /tmp/ansible-%r@%h:%p
+          ControlPersist 30m
+
+    """)
+    extra_ci_agent_with_proxy_tmpl = textwrap.dedent("""\
+        Host {host}
+          Hostname {ip_addr}
+          User {user}
+          ForwardAgent yes
+          StrictHostKeyChecking no
+          ProxyJump {proxy}
+
+    """)
     ci_agent_tmpl = textwrap.dedent("""\
         Host {host}
           Hostname {ip_addr}
           User {user}
           StrictHostKeyChecking no
-          ProxyCommand /usr/bin/ssh -W %h:%p -q ubuntu@{bastion_host}
+          ProxyJump {bastion_host}
 
         """)
     with open(filename, "w") as handle:
@@ -321,13 +368,22 @@ def write_ssh_cfg(filename, bastions, ci_agents):
         for host, info in sorted(ci_agents.items()):
             user = info["user"]
             if host in EXTRA:
-                # extra CI agent use an external IP directly
-                args = {
-                    "user": user,
-                    "host": host,
-                    "ip_addr": info["ip_addrs"]["public"]
-                }
-                entry = bastion_tmpl.format(**args)
+                proxy = EXTRA[host]["proxyjump"]
+                if proxy:
+                    args = {
+                        "user": user,
+                        "host": host,
+                        "ip_addr": info["ip_addrs"]["public"],
+                        "proxy": proxy
+                    }
+                    entry = extra_ci_agent_with_proxy_tmpl.format(**args)
+                else:
+                    args = {
+                        "user": user,
+                        "host": host,
+                        "ip_addr": info["ip_addrs"]["public"]
+                    }
+                    entry = extra_ci_agent_tmpl.format(**args)
             else:
                 bastion_ip =  info["ip_addrs"]["bastion_ip"]
                 bastion_host = info["ip_addrs"]["bastion_host"]
@@ -375,7 +431,10 @@ def main():
         elif instance["name"].startswith("couchdb-worker"):
             load_ci_agent(ci_agents, instance)
         elif instance["name"] in EXTRA:
-            load_extra_ci_agent(ci_agents, instance)
+            if not EXTRA[instance["name"]]["is_proxy"]:
+                load_extra_ci_agent(ci_agents, instance)
+            else:
+                load_extra_bastion(bastions, instance)
 
     assign_bastions(bastions, ci_agents)
 

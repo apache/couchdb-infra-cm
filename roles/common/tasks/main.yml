@@ -67,11 +67,10 @@
       - gnupg2
       - mtr-tiny
       - nload
-      - ntp
+      - chrony
       - python3
       - runit
       - screen
-      - software-properties-common
       - strace
       - sudo
       - tcpdump
