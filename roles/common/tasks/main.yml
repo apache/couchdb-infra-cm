@@ -1,6 +1,6 @@
 - name: Allow CouchDB Infra access
   authorized_key:
-    user: "{{ ansible_user_id }}"
+    user: "{{ ansible_facts['user_id'] }}"
     state: present
     key: "{{ item }}"
   with_items:

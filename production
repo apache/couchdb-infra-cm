@@ -223,15 +223,15 @@ all:
             num_cpus: 8
             ram: 16
           user: ubuntu
-        ubuntu-fra1-10:
+        ubuntu-c-4-nyc3-01:
           instance:
-            id: ubuntu-fra1-10
-            name: ubuntu-fra1-10
+            id: ubuntu-c-4-nyc3-01
+            name: ubuntu-c-4-nyc3-01
             subnet: null
           ip_addrs:
             bastion_host: null
             bastion_ip: null
-            public: 67.207.77.129
+            public: 129.212.147.196
           system:
             arch: x86_64
             num_cpus: 4

@@ -1,6 +1,6 @@
 #!/bin/sh
 exec 2>&1
 cd /home/jenkins
-curl https://ci-couchdb.apache.org/jnlpJars/agent.jar --output /home/jenkins/agent.jar
+curl -sO https://ci-couchdb.apache.org/jnlpJars/agent.jar
 chown jenkins:jenkins /home/jenkins/agent.jar
-exec chpst -u jenkins:jenkins:docker java -jar agent.jar -jnlpUrl https://ci-couchdb.apache.org/computer/{{ hostvars[inventory_hostname]["instance"]["name"] }}/jenkins-agent.jnlp -secret {{ jenkins_secret }} -workDir "/home/jenkins"
+exec chpst -u jenkins:jenkins:docker java -jar agent.jar -url https://ci-couchdb.apache.org/ -secret "{{ jenkins_secret }}" -name "{{ hostvars[inventory_hostname]["instance"]["name"] }}" -workDir "/home/jenkins"
