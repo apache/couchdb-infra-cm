@@ -1,5 +1,5 @@
 - name: restart sshd
   become: yes
   service:
-    name: sshd
+    name: "{{ 'ssh' if ansible_facts['distribution'] in ['Debian', 'Ubuntu'] else 'sshd' }}"
     state: restarted
