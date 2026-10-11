@@ -117,6 +117,10 @@ Running Ansible Playbooks
     $ ansible-playbook bastions.yml
     $ ansible-playbook ci_agents.yml
 
+After upgrading ubuntu (`do-release-upgrade`) re-run `ansible-playbook
+ci_agents.yml`. Upgrade disable third party apt sources like docker so
+we need to re-create them.
+
 Running Ad Hoc Commands
 ---
 
@@ -124,6 +128,10 @@ Running Ad Hoc Commands
     % ansible -v -i production ci_agents -a "sudo apt list --upgradable"
     % ansible -v -i production ci_agents -a "sudo unattended-upgrade -v"
 
+Run on some workers only
+---
+
+    % ansible-playbook ci_agents.yml --limit 'couchdb-worker-x86-64-ubuntu-dal-1-01,ubuntu-nc-arm64-12'
 
 Useful Commands:
 ---
