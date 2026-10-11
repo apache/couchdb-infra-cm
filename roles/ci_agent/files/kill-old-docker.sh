@@ -1,3 +1,4 @@
+#!/bin/sh
 THRESHOLD=$(date --date "1 day ago" +%s)
 
 docker ps --format "{{.ID}} {{.CreatedAt}}" | while read LINE; do
